@@ -1,0 +1,12 @@
+{
+  "production": {
+    "remotes": {
+      "dev_admin_layout_shell": "http://localhost:2070"
+    }
+  },
+  "development": {
+    "remotes": {
+      "dev_admin_layout_shell": "http://localhost:2070"
+    }
+  }
+}
