@@ -7,7 +7,9 @@ import { Container } from "@/shared/ui";
     <Container>
       <div class="the-footer__content">
         <div class="the-footer__branding">
-          <div class="the-footer__logo">СЕДЬМОЙ ЭТАЖ</div>
+          <router-link to="/" class="the-footer__logo"
+            >СЕДЬМОЙ ЭТАЖ</router-link
+          >
           <p class="the-footer__desc">
             Агентство недвижимости нового поколения. Мы поможем найти вам дом
             мечты.
@@ -17,14 +19,14 @@ import { Container } from "@/shared/ui";
         <div class="the-footer__links">
           <h4 class="the-footer__title">Навигация</h4>
           <router-link to="/catalog">Каталог</router-link>
-          <router-link to="/contacts">Контакты</router-link>
+          <router-link to="/contacts">О нас</router-link>
         </div>
 
         <div class="the-footer__contacts">
           <h4 class="the-footer__title">Контакты</h4>
-          <a href="tel:+79990000000">+7 (999) 000-00-00</a>
-          <a href="mailto:info@7floor.ru">info@7floor.ru</a>
-          <p>г. Москва, ул. Примерная, д. 7</p>
+          <a href="tel:+37377794040">0(777) 94040</a>
+          <!-- <a href="mailto:info@7floor.ru">info@7floor.ru</a> -->
+          <!-- <p>г. Тирасполь, ул. Текстильщиков, 38 (Балка)</p> -->
         </div>
       </div>
 
@@ -42,33 +44,38 @@ import { Container } from "@/shared/ui";
 .the-footer {
   background-color: #1f2937;
   color: #fff;
-  padding: 4rem 0 2rem;
+  padding: 2rem 0 1rem;
   margin-top: auto;
 }
 
 .the-footer__content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .the-footer__logo {
   font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+  color: #fff;
+  display: inline-block;
+  cursor: pointer;
 }
 
 .the-footer__desc {
   color: #9ca3af;
-  line-height: 1.6;
+  line-height: 1.4;
   max-width: 300px;
+  font-size: 0.9rem;
 }
 
 .the-footer__title {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: #fff;
 }
 
@@ -76,7 +83,7 @@ import { Container } from "@/shared/ui";
 .the-footer__contacts {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .the-footer__links a,
@@ -84,6 +91,7 @@ import { Container } from "@/shared/ui";
   color: #9ca3af;
   text-decoration: none;
   transition: color 0.2s;
+  font-size: 0.9rem;
 }
 
 .the-footer__contacts p {
@@ -96,11 +104,11 @@ import { Container } from "@/shared/ui";
 }
 
 .the-footer__bottom {
-  padding-top: 2rem;
+  padding-top: 1rem;
   border-top: 1px solid #374151;
   text-align: center;
   color: #6b7280;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
 }
 
 @media (min-width: 768px) {

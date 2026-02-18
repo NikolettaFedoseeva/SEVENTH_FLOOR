@@ -63,7 +63,6 @@ const componentTag = computed(() => {
         </span>
       </span>
     </component>
-    <br />
 
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none">
       <defs>

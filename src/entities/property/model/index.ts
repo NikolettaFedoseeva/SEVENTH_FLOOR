@@ -1,2 +1,1 @@
-import { Property } from "./types";
-export { Property };
+export * from "./types";

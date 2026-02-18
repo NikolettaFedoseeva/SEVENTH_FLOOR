@@ -13,6 +13,15 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Эксклюзивный пентхаус с панорамным видом на всю Москву. Дизайнерский ремонт, терраса, консьерж-сервис.",
+    floor: 65,
+    totalFloors: 70,
+    heating: "central",
+    parking: "underground",
+    buildingType: "new",
+    buildingStatus: "delivered",
+    source: "internet",
+    verified: true,
+    currency: "usd",
   },
   {
     id: 2,
@@ -26,6 +35,14 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Стильная студия в лофт-квартале. Высокие потолки, кирпичные стены, развитая инфраструктура.",
+    floor: 3,
+    totalFloors: 5,
+    heating: "autonomous",
+    parking: "open",
+    buildingType: "historic",
+    source: "newspaper",
+    verified: false,
+    currency: "usd",
   },
   {
     id: 3,
@@ -39,6 +56,13 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1600596542815-60c37c65b567?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Современный эко-дом в окружении леса. Панорамные окна, спа-зона, умный дом.",
+    heating: "autonomous_house",
+    parking: "garage",
+    buildingType: "new",
+    buildingStatus: "under_construction",
+    source: "internet",
+    verified: true,
+    currency: "usd",
   },
   {
     id: 4,
@@ -52,6 +76,13 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Офис класса А в деловом центре столицы. Готовая отделка, подземный паркинг.",
+    floor: 4,
+    totalFloors: 12,
+    heating: "central",
+    parking: "underground",
+    buildingType: "standard",
+    source: "internet",
+    currency: "usd",
   },
   {
     id: 5,
@@ -65,6 +96,14 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Просторная квартира для большой семьи. Рядом парк, школы и детские сады.",
+    floor: 5,
+    totalFloors: 9,
+    heating: "central",
+    parking: "open",
+    buildingType: "standard",
+    source: "newspaper",
+    verified: true,
+    currency: "usd",
   },
   {
     id: 6,
@@ -78,12 +117,19 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Роскошная вилла на первой линии моря. Бассейн, сад, собственный выход на пляж.",
+    heating: "autonomous_house",
+    parking: "garage",
+    buildingType: "new",
+    buildingStatus: "delivered",
+    source: "internet",
+    currency: "usd",
   },
   {
     id: 7,
     title: "Minimalist City Apartment",
     price: 21000000,
     address: "Khamovniki District",
+    district: "Центр", // Mocked as Center for Tiraspol/Bender
     area: 75,
     rooms: 2,
     type: "apartment",
@@ -91,12 +137,22 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Светлая квартира с минималистичным дизайном в престижном районе. Идеально для молодой семьи.",
+    floor: 8,
+    totalFloors: 14,
+    heating: "central",
+    parking: "underground",
+    buildingType: "new",
+    buildingStatus: "not_delivered",
+    source: "internet",
+    verified: true,
+    currency: "usd",
   },
   {
     id: 8,
     title: "Historic Mansion",
     price: 150000000,
     address: "Old Arbat Street",
+    district: "Бородинка", // Mock district
     area: 350,
     rooms: 10,
     type: "house",
@@ -104,12 +160,18 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Уникальный особняк XIX века после полной реставрации. Историческая ценность и современный комфорт.",
+    heating: "autonomous",
+    parking: "covered",
+    buildingType: "historic",
+    source: "newspaper",
+    currency: "usd",
   },
   {
     id: 9,
     title: "Tech Startup Office",
     price: 35000000,
     address: "Skolkovo Innovation Center",
+    district: "Ленинский", // Mock district for Bender
     area: 200,
     rooms: 5,
     type: "commercial",
@@ -117,6 +179,14 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Современное офисное пространство для IT-компании. Open space, переговорные, зона отдыха.",
+    floor: 2,
+    totalFloors: 4,
+    heating: "central",
+    parking: "open",
+    buildingType: "new",
+    buildingStatus: "delivered",
+    source: "internet",
+    currency: "usd",
   },
   {
     id: 10,
@@ -130,5 +200,12 @@ export const MOCK_PROPERTIES: Property[] = [
       "https://images.unsplash.com/photo-1502005229766-3c8ef95a5d78?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     description:
       "Пентхаус в легендарной высотке. Потрясающие виды на Москву-реку и Кремль.",
+    floor: 24,
+    totalFloors: 32,
+    heating: "central",
+    parking: "underground",
+    buildingType: "historic",
+    verified: true,
+    currency: "usd",
   },
 ];

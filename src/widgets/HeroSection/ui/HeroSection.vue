@@ -16,10 +16,51 @@ onMounted(() => {
       <div class="hero-section__main">
         <!-- Main Content -->
         <div class="hero-section__content">
+          <!-- Mobile Contact Info (Visible only on mobile) -->
+          <div class="hero-section__mobile-contacts">
+            <div class="mobile-contact-item">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="icon-sm"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>г. Тирасполь, ул. Текстильщиков, 38 (Балка)</span>
+            </div>
+            <div class="mobile-contact-item">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="icon-sm"
+              >
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                ></path>
+              </svg>
+              <div class="mobile-phones">
+                <a href="tel:+37377794040">0(777) 94040</a>
+              </div>
+            </div>
+          </div>
+
           <h1 class="hero-section__title">
             АГЕНТ ПО <br />
             <span class="hero-section__highlight">НЕДВИЖИМОСТИ</span>
           </h1>
+
+          <div class="hero-section__subtitle-phone">
+            <a href="tel:+37377794040">0(777) 94040</a>
+          </div>
 
           <div class="hero-section__divider">
             <div class="hero-section__divider-line"></div>
@@ -46,9 +87,10 @@ onMounted(() => {
           </div>
 
           <p class="hero-section__description">
-            Наши эксперты готовы предложить вам лучшие варианты жилья, помочь с
-            продажей или арендой недвижимости, и поделиться ценными советами по
-            инвестициям.
+            Агентство недвижимости поможет Вам продать, купить, подарить,
+            завещать, переоформить грамотно, конфиденциально и быстро вашу
+            недвижимость; узаконить перепланировку, получить разрешение на
+            строительство лоджии, балкона.
           </p>
 
           <div class="hero-section__actions">
@@ -76,7 +118,8 @@ onMounted(() => {
           </div>
           <h3 class="benefit-card__title">ПОЛНЫЙ СПЕКТР УСЛУГ</h3>
           <p class="benefit-card__text">
-            Проектирование, установка и техническое обслуживание систем
+            Поможем продать, купить, подарить, завещать, переоформить вашу
+            недвижимость
           </p>
         </div>
 
@@ -95,7 +138,8 @@ onMounted(() => {
           </div>
           <h3 class="benefit-card__title">ЭКСПЕРТНОЕ ЗНАНИЕ РЫНКА</h3>
           <p class="benefit-card__text">
-            Проектирование, установка и техническое обслуживание систем
+            Поможем узаконить перепланировку, получить разрешение на
+            строительство
           </p>
         </div>
 
@@ -114,7 +158,7 @@ onMounted(() => {
           </div>
           <h3 class="benefit-card__title">ВРЕМЯ И УДОБСТВО</h3>
           <p class="benefit-card__text">
-            Проектирование, установка и техническое обслуживание систем
+            Наша работа - это экономия вашего времени, нервов и ваша страховка
           </p>
         </div>
 
@@ -135,7 +179,8 @@ onMounted(() => {
           </div>
           <h3 class="benefit-card__title">ИНДИВИДУАЛЬНЫЙ ПОДХОД</h3>
           <p class="benefit-card__text">
-            Проектирование, установка и техническое обслуживание систем
+            Выедем к вам по месту и решим все вопросы, поможем определить
+            стоимость
           </p>
         </div>
       </div>
@@ -201,6 +246,45 @@ onMounted(() => {
   max-width: 800px;
 }
 
+/* Mobile Contacts */
+.hero-section__mobile-contacts {
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 1280px) {
+  .hero-section__mobile-contacts {
+    display: flex;
+  }
+}
+
+.mobile-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.mobile-phones {
+  display: flex;
+  flex-direction: column;
+  text-align: center; /* Center align phones */
+  align-items: center;
+}
+
+.mobile-phones a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
 .hero-section__title {
   font-size: 5rem;
   font-weight: 800;
@@ -208,6 +292,23 @@ onMounted(() => {
   margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: -0.02em;
+}
+
+.hero-section__subtitle-phone {
+  margin-bottom: 2rem;
+}
+
+.hero-section__subtitle-phone a {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #fbbf24;
+  text-decoration: none;
+  transition: color 0.2s;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-section__subtitle-phone a:hover {
+  color: #fcd34d;
 }
 
 .hero-section__highlight {
@@ -309,31 +410,61 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 576px) {
-  .hero-section__title {
-    font-size: 2.5rem;
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 0;
+    align-items: center; /* Fix alignment - center vertically */
   }
 
+  .hero-section__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center !important; /* Force center alignment */
+    margin-top: 2rem; /* Give space from header */
+    width: 100%; /* Ensure full width for centering */
+  }
+
+  /* Show mobile contacts */
+  .hero-section__mobile-contacts {
+    display: flex;
+  }
+
+  .hero-section__title {
+    font-size: 2rem; /* Fix font size */
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-section__subtitle-phone a {
+    font-size: 1.8rem;
+  }
+
+  .hero-section__divider {
+    display: none; /* Simplify on mobile if too crowded, or keep */
+  }
+
+  .hero-section__description {
+    display: none; /* Image layout implies focusing on Title + Icons */
+  }
+
+  .hero-section__actions {
+    display: none; /* Hide buttons if following strict image layout */
+  }
+
+  /* Benefits Stack */
   .hero-section__benefits {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    border-top: none;
+    margin-top: 2rem;
   }
 
   .benefit-card {
-    align-items: flex-start;
-    text-align: left;
-    flex-direction: row;
-  }
-
-  .benefit-card__icon {
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-    margin-bottom: 0;
-  }
-
-  .benefit-card__icon .icon {
-    width: 24px;
-    height: 24px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 }
 </style>

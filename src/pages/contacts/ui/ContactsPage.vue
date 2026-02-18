@@ -11,25 +11,25 @@ import { Container } from "@/shared/ui";
       <Container>
         <div class="contacts-page__content">
           <div class="contacts-page__info">
-            <h1 class="contacts-page__title">Контакты</h1>
+            <h1 class="contacts-page__title">О нас</h1>
             <p class="contacts-page__description">
               Мы всегда рады видеть вас в нашем офисе. Приходите на кофе, и мы
               обсудим ваши планы на покупку недвижимости.
             </p>
 
             <div class="contacts-list">
-              <div class="contacts-list__item">
+              <!-- <div class="contacts-list__item">
                 <h3>Адрес</h3>
-                <p>г. Москва, ул. Примерная, д. 7, офис 777</p>
-              </div>
+                <p>г. Тирасполь, ул. Текстильщиков, 38 (Балка)</p>
+              </div> -->
               <div class="contacts-list__item">
                 <h3>Телефон</h3>
-                <p><a href="tel:+79990000000">+7 (999) 000-00-00</a></p>
+                <p><a href="tel:+37377794040">0(777) 94040</a></p>
               </div>
-              <div class="contacts-list__item">
+              <!-- <div class="contacts-list__item">
                 <h3>Email</h3>
                 <p><a href="mailto:info@7floor.ru">info@7floor.ru</a></p>
-              </div>
+              </div> -->
               <div class="contacts-list__item">
                 <h3>Режим работы</h3>
                 <p>Пн-Пт: 10:00 - 19:00<br />Сб-Вс: Выходной</p>
@@ -37,14 +37,14 @@ import { Container } from "@/shared/ui";
             </div>
           </div>
 
-          <div class="contacts-page__form">
+          <!-- <div class="contacts-page__form">
             <ContactForm />
-          </div>
+          </div> -->
         </div>
 
-        <div class="contacts-page__map">
+        <!-- <div class="contacts-page__map">
           <iframe
-            src="https://maps.google.com/maps?q=Presnenskaya%20Naberezhnaya%2C%2012%2C%20Moscow&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            src="https://maps.google.com/maps?q=Tiraspol%2C%20Tekstilshchikov%2C%2038&t=&z=15&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="450"
             style="border: 0"
@@ -52,7 +52,7 @@ import { Container } from "@/shared/ui";
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
           ></iframe>
-        </div>
+        </div> -->
       </Container>
     </main>
     <TheFooter />
