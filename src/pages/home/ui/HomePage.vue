@@ -1,4 +1,7 @@
+```
 <script setup lang="ts">
+import { onMounted } from "vue";
+import { usePropertiesStore } from "@/entities/property/model/store";
 import {
   TheHeader,
   TheFooter,
@@ -6,6 +9,23 @@ import {
   PropertyCarousel,
   AgencyInfo,
 } from "@/widgets";
+import { useHead } from "@unhead/vue";
+
+useHead({
+  title: "Главная",
+  meta: [
+    {
+      name: "description",
+      content: "Лучшие предложения недвижимости в Тирасполе. Квартиры, дома, участки. Надежное агентство недвижимости 7 Этаж."
+    }
+  ]
+});
+
+const propertiesStore = usePropertiesStore();
+
+onMounted(() => {
+  propertiesStore.fetchProperties();
+});
 </script>
 
 <template>
@@ -20,7 +40,7 @@ import {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .home-page {
   min-height: 100vh;
   display: flex;

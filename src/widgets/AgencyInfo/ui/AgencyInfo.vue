@@ -61,7 +61,7 @@ const stats = [
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .agency-info {
   padding: 8rem 0;
   background-color: #f8fafc;

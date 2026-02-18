@@ -56,7 +56,7 @@ const value = computed({
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .ui-input-wrapper {
   display: flex;
   flex-direction: column;

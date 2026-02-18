@@ -7,52 +7,67 @@ import { storeToRefs } from "pinia";
 const store = usePropertiesStore();
 const { properties: allProperties } = storeToRefs(store);
 
-// Take 10 items
-const properties = computed(() => allProperties.value.slice(0, 10));
+// Duplicate properties to create infinite effect
+const properties = computed(() => {
+  const props = allProperties.value.slice(0, 10);
+  return [...props, ...props, ...props]; // Triple the items for safety
+});
+
 const scrollContainer = ref<HTMLElement | null>(null);
 
 // Auto-scroll logic
 let intervalId: number | null = null;
+let animationFrameId: number | null = null;
 
 const startAutoScroll = () => {
-  stopAutoScroll();
-  intervalId = window.setInterval(() => {
-    scrollRight();
-  }, 3000); // Scroll every 3 seconds
+    stopAutoScroll();
+    // Continuous smooth scrolling
+    const scroll = () => {
+        if (scrollContainer.value) {
+            scrollContainer.value.scrollLeft += 1;
+            checkScroll();
+        }
+        animationFrameId = requestAnimationFrame(scroll);
+    };
+    animationFrameId = requestAnimationFrame(scroll);
 };
 
 const stopAutoScroll = () => {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
   }
 };
 
-const scrollLeft = () => {
-  if (!scrollContainer.value) return;
-  const container = scrollContainer.value;
-  const cardWidth = container.firstElementChild?.clientWidth || 300;
-  container.scrollBy({ left: -cardWidth, behavior: "smooth" });
+const checkScroll = () => {
+    if (!scrollContainer.value) return;
+    const container = scrollContainer.value;
+    
+    // If we've scrolled past the first set of items (1/3 of total width), reset to 0
+    // Actually, reset to the start of the second set to avoid jump
+    const oneSetWidth = container.scrollWidth / 3;
+    
+    if (container.scrollLeft >= oneSetWidth * 2) {
+        container.scrollLeft = oneSetWidth;
+    } else if (container.scrollLeft <= 0) {
+         container.scrollLeft = oneSetWidth;
+    }
 };
 
-const scrollRight = () => {
-  if (!scrollContainer.value) return;
-  const container = scrollContainer.value;
-  // Check if we are at the end
-  if (
-    Math.abs(
-      container.scrollWidth - container.clientWidth - container.scrollLeft,
-    ) < 5
-  ) {
-    container.scrollTo({ left: 0, behavior: "smooth" });
-  } else {
-    const cardWidth = container.firstElementChild?.clientWidth || 300;
-    container.scrollBy({ left: cardWidth, behavior: "smooth" });
-  }
-};
+
+
 
 onMounted(() => {
-  startAutoScroll();
+  // Set initial scroll position to the middle set
+  if (scrollContainer.value) {
+      setTimeout(() => {
+          if (scrollContainer.value) {
+            const oneSetWidth = scrollContainer.value.scrollWidth / 3;
+            scrollContainer.value.scrollLeft = oneSetWidth;
+             startAutoScroll();
+          }
+      }, 500); // Wait for render
+  }
 });
 
 onUnmounted(() => {
@@ -65,40 +80,7 @@ onUnmounted(() => {
     <Container>
       <div class="property-carousel__header">
         <h2 class="property-carousel__title">Популярные направления</h2>
-        <div class="property-carousel__nav">
-          <button
-            class="nav-btn nav-btn--prev"
-            @click="scrollLeft"
-            aria-label="Previous"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
-          <button
-            class="nav-btn nav-btn--next"
-            @click="scrollRight"
-            aria-label="Next"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        </div>
+
       </div>
 
       <div
@@ -140,7 +122,7 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .property-carousel {
   padding: 6rem 0;
   background-color: var(--bg-secondary);
@@ -160,30 +142,7 @@ onUnmounted(() => {
   margin: 0;
 }
 
-.property-carousel__nav {
-  display: flex;
-  gap: 1rem;
-}
 
-.nav-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: transparent;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.nav-btn:hover {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
 
 .carousel-track {
   display: flex;

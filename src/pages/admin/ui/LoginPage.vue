@@ -13,7 +13,7 @@ import { Container } from "@/shared/ui";
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .login-page {
   min-height: 100vh;
   display: flex;

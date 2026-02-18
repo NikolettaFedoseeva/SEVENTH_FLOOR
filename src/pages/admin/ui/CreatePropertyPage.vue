@@ -8,7 +8,7 @@ import { CreatePropertyForm } from "@/features/manage-property/create";
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .create-property-page {
   max-width: 800px;
   margin: 0 auto;

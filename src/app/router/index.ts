@@ -47,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
         name: "CreateProperty",
         component: () => import("@/pages/admin/ui/CreatePropertyPage.vue"), // Will create this
       },
+      {
+        path: "properties/:id/edit",
+        name: "EditProperty",
+        component: () => import("@/pages/admin/ui/EditPropertyPage.vue"),
+      },
     ],
   },
   // Fallback

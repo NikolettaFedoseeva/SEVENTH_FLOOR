@@ -1,11 +1,18 @@
-import { ref, reactive } from "vue";
+import { ref, reactive, watch, onMounted } from "vue";
 import type { Property } from "@/entities/property/model/types";
 import { usePropertiesStore } from "@/entities/property";
+import { storeToRefs } from "pinia";
 
-export function useCreateProperty() {
+export function useCreateProperty(propertyId?: string) {
+  const store = usePropertiesStore();
+  const { loading, error } = storeToRefs(store);
+  
   const isLoading = ref(false);
   const success = ref(false);
+  const isEdit = !!propertyId;
+
   const form = reactive<Omit<Property, "id">>({
+    // ... same as before
     title: "",
     address: "",
     price: 0,
@@ -49,6 +56,25 @@ export function useCreateProperty() {
 
   const errors = reactive<Record<string, string>>({});
 
+  // Fetch data if editing
+  onMounted(async () => {
+    if (isEdit && propertyId) {
+        isLoading.value = true;
+        const property = await store.fetchPropertyById(propertyId);
+        if (property) {
+            Object.assign(form, property);
+            // Ensure array fields are arrays not null
+            if (!form.images) form.images = [];
+            if (!form.amenities) form.amenities = [];
+            if (!form.water) form.water = [];
+            if (!form.heatingSources) form.heatingSources = [];
+            if (!form.commercialTypes) form.commercialTypes = [];
+            if (!form.roadType) form.roadType = [];
+        }
+        isLoading.value = false;
+    }
+  });
+
   const validate = () => {
     Object.keys(errors).forEach((key) => delete errors[key]);
     let isValid = true;
@@ -76,27 +102,32 @@ export function useCreateProperty() {
     success.value = false;
 
     try {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      if (isEdit && propertyId) {
+        await store.updateProperty(propertyId, form);
+      } else {
+        await store.addProperty(form);
+      }
 
-      const session = usePropertiesStore();
-      session.addProperty(form);
-      console.log("Created property:", { ...form });
+      if (store.error) {
+        throw new Error(store.error);
+      }
 
       success.value = true;
-      // Reset form
-      form.title = "";
-      form.address = "";
-      form.price = 0;
-      form.imageUrl = "";
-      form.description = "";
-      form.area = 0;
-      form.rooms = 1;
-      form.type = "apartment";
+      
+      if (!isEdit) {
+          // Reset form only if creating
+          form.title = "";
+          form.address = "";
+          form.price = 0;
+          form.imageUrl = "";
+          form.description = "";
+      }
+    } catch (e: any) {
+        console.error(e);
     } finally {
       isLoading.value = false;
     }
   };
 
-  return { form, errors, isLoading, success, createProperty };
+  return { form, errors, isLoading, success, createProperty, isEdit };
 }

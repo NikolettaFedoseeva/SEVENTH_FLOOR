@@ -11,8 +11,70 @@ import type {
   CommercialType,
 } from "@/entities/property/model/types";
 
-const { form, errors, isLoading, success, createProperty } =
-  useCreateProperty();
+import { uploadImageToCloudinary } from "@/shared/api/cloudinary";
+
+const props = defineProps<{
+  propertyId?: string;
+}>();
+
+const { form, errors, isLoading, success, createProperty, isEdit } =
+  useCreateProperty(props.propertyId);
+
+// --- Image Upload Logic ---
+const isUploading = ref(false);
+const uploadError = ref<string | null>(null);
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+
+  isUploading.value = true;
+  uploadError.value = null;
+
+  try {
+    const files = Array.from(target.files);
+    
+    // Upload each file
+    const uploadPromises = files.map(file => uploadImageToCloudinary(file));
+    const urls = await Promise.all(uploadPromises);
+
+    // Initialize images array if it doesn't exist
+    if (!form.images) {
+      form.images = [];
+    }
+
+    // Add new URLs to the form
+    form.images.push(...urls);
+
+    // Set the first image as the main image if not set
+    if (!form.imageUrl && form.images.length > 0) {
+      form.imageUrl = form.images[0];
+    }
+  } catch (err: any) {
+    console.error("Upload failed", err);
+    uploadError.value = "Ошибка загрузки изображения: " + (err.message || "Неизвестная ошибка");
+  } finally {
+    isUploading.value = false;
+    // Reset input
+    target.value = "";
+  }
+};
+
+const removeImage = (index: number) => {
+  if (!form.images) return;
+  
+  const removedUrl = form.images[index];
+  form.images.splice(index, 1);
+
+  // If we removed the main image, update it
+  if (form.imageUrl === removedUrl) {
+    form.imageUrl = form.images.length > 0 ? form.images[0] : "";
+  }
+};
+
+const setMainImage = (url: string) => {
+  form.imageUrl = url;
+};
 
 // --- Rubric / Subrubric Logic ---
 const selectedRubric = ref<string>("sale");
@@ -238,31 +300,19 @@ const commercialTypeList: { value: CommercialType; label: string }[] = [
   { value: "other", label: "Прочее" },
 ];
 
-const addImage = () => {
-  const url = prompt("Введите URL изображения");
-  if (url) {
-    if (!form.images) form.images = [];
-    form.images.push(url);
-    // Set first image as main if empty
-    if (!form.imageUrl) form.imageUrl = url;
-  }
-};
 
-const removeImage = (index: number) => {
-  form.images?.splice(index, 1);
-  if (form.imageUrl === form.images?.[index]) {
-    form.imageUrl = form.images?.[0] || "";
-  }
-};
 </script>
 
 <template>
   <form @submit.prevent="createProperty" class="create-property-form">
-    <div v-if="success" class="success-message">Объект успешно добавлен!</div>
+    <div v-if="success" class="success-message">
+        {{ isEdit ? 'Объект успешно обновлен!' : 'Объект успешно добавлен!' }}
+    </div>
 
     <!-- Category Section -->
     <Card class="form-section">
       <div class="category-grid">
+
         <div class="category-col">
           <label>Рубрика</label>
           <div class="select-list">
@@ -589,19 +639,32 @@ const removeImage = (index: number) => {
     <Card class="form-section">
       <h3 class="section-title">Расположение</h3>
       <div class="form-grid mb-4">
+
         <div class="field">
           <label>Регион <span class="required">*</span></label>
           <select class="custom-select">
-            <option>Молдова</option>
+            <option>ПМР</option>
           </select>
         </div>
         <div class="field">
           <label>Город <span class="required">*</span></label>
           <select class="custom-select" v-model="form.city">
             <option :value="undefined">-</option>
-            <option value="Chisinau">Кишинев</option>
-            <option value="Balti">Бельцы</option>
             <option value="Tiraspol">Тирасполь</option>
+            <option value="Bender">Бендеры</option>
+            <option value="Ribnita">Рыбница</option>
+            <option value="Blijniy Hutor">Ближний Хутор</option>
+            <option value="Grigoriopol">Григориополь</option>
+            <option value="Dnestrovsk">Днестровск</option>
+            <option value="Dubossary">Дубоссары</option>
+            <option value="Kamenka">Каменка</option>
+            <option value="Maiac">Маяк</option>
+            <option value="Novotiraspolskiy">Новотираспольский</option>
+            <option value="Parcani">Парканы</option>
+            <option value="Pervomaisk">Первомайск</option>
+            <option value="Slobozia">Слободзея</option>
+            <option value="Sukleia">Суклея</option>
+            <option value="Ternovka">Терновка</option>
           </select>
         </div>
       </div>
@@ -690,24 +753,55 @@ const removeImage = (index: number) => {
 
     <!-- Media -->
     <Card class="form-section">
-      <h3 class="section-title-sm">Загрузите хотя бы одну фотографию</h3>
+      <h3 class="section-title-sm">Загрузите фотографии</h3>
       <p class="hint">
-        Только объявления с фотографией попадают на главную страницу. Можно
-        прикрепить еще 15 фотографий.
+        Первое фото будет главным. Поддерживаются JPG, PNG.
       </p>
 
       <div class="media-container mt-2">
-        <div class="photo-upload-placeholder" @click="addImage">
-          <div class="camera-icon">📷</div>
-          <span class="plus-icon">+</span>
-        </div>
-        <div v-for="(img, idx) in form.images" :key="idx" class="photo-preview">
+        <!-- Upload Button -->
+        <label class="photo-upload-placeholder" :class="{ disabled: isUploading }">
+          <input 
+            type="file" 
+            multiple 
+            accept="image/*" 
+            @change="handleFileUpload" 
+            :disabled="isUploading"
+            style="display: none;" 
+          />
+          <div v-if="isUploading" class="loading-spinner">⏳</div>
+          <template v-else>
+            <div class="camera-icon">📷</div>
+            <span class="plus-icon">+</span>
+          </template>
+        </label>
+
+        <!-- Previews -->
+        <div 
+          v-for="(img, idx) in form.images" 
+          :key="idx" 
+          class="photo-preview"
+          :class="{ 'is-main': form.imageUrl === img }"
+        >
           <img :src="img" alt="preview" />
-          <button type="button" class="remove-btn" @click="removeImage(idx)">
-            &times;
-          </button>
+          <div class="preview-actions">
+             <button 
+              type="button" 
+              class="action-btn star-btn" 
+              @click.prevent="setMainImage(img)"
+              title="Сделать главным"
+              v-if="form.imageUrl !== img"
+            >
+              ★
+            </button>
+            <span v-else class="main-badge">Главное</span>
+            <button type="button" class="remove-btn" @click.prevent="removeImage(idx)">
+              &times;
+            </button>
+          </div>
         </div>
       </div>
+      <div v-if="uploadError" class="error-message mt-2">{{ uploadError }}</div>
 
       <div class="field full mt-6">
         <label>Ссылка на видеоролик с Youtube или Vimeo</label>
@@ -717,13 +811,13 @@ const removeImage = (index: number) => {
 
     <div class="form-actions">
       <Button type="submit" variant="primary" :disabled="isLoading">
-        {{ isLoading ? "Сохранение..." : "Добавить объект" }}
+        {{ isLoading ? "Сохранение..." : isEdit ? "Сохранить изменения" : "Добавить объект" }}
       </Button>
     </div>
   </form>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .create-property-form {
   display: flex;
   flex-direction: column;
@@ -942,6 +1036,51 @@ const removeImage = (index: number) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.photo-upload-placeholder.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.main-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: #10b981;
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.star-btn {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: rgba(0,0,0,0.5);
+  color: #fbbf24;
+  border: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
 }
 
 .remove-btn {

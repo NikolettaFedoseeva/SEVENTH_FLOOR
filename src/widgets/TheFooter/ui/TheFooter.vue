@@ -40,7 +40,7 @@ import { Container } from "@/shared/ui";
   </footer>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .the-footer {
   background-color: #1f2937;
   color: #fff;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-  variant?: "primary" | "secondary" | "outline" | "text";
+  variant?: "primary" | "secondary" | "outline" | "text" | "danger";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
   block?: boolean;
@@ -39,7 +39,7 @@ const emit = defineEmits<{
   </component>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .ui-button {
   display: inline-flex;
   align-items: center;
@@ -97,6 +97,15 @@ const emit = defineEmits<{
 
 .ui-button--text:not(:disabled):hover {
   color: #111827;
+}
+
+.ui-button--danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.ui-button--danger:not(:disabled):hover {
+  background-color: #dc2626;
 }
 
 /* Sizes */

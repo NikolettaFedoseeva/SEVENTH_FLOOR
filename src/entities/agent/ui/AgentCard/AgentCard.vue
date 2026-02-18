@@ -33,7 +33,7 @@ defineProps<Props>();
   </Card>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .agent-card {
   display: flex;
   flex-direction: column;

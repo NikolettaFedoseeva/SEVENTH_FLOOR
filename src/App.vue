@@ -1,5 +1,15 @@
 <script setup lang="ts">
-// Global provider wrapper if needed
+import { useHead } from "@unhead/vue";
+
+useHead({
+  titleTemplate: "%s | 7 Этаж",
+  meta: [
+    {
+      name: "description",
+      content: "Агентство недвижимости 7 Этаж в Тирасполе и ПМР. Продажа и аренда квартир, домов, коммерческой недвижимости."
+    }
+  ]
+});
 </script>
 
 <template>
@@ -10,7 +20,7 @@
   </router-view>
 </template>
 
-<style>
+<style lang="scss">
 @import "./app/styles/index.css";
 
 #app {

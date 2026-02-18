@@ -609,7 +609,7 @@ function toggleBuildingStatus(status: string) {
   </Card>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .filter-panel {
   background-color: var(--bg-secondary);
   position: sticky;

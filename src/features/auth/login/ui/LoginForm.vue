@@ -31,7 +31,7 @@ const { username, password, isLoading, error, handleLogin } = useLogin();
   </Card>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .login-form {
   max-width: 400px;
   width: 100%;

@@ -37,7 +37,7 @@ export type BuildingStatus =
   | "delivered"
   | "not_delivered"
   | "under_construction";
-export type ParkingType = "none" | "open" | "covered" | "garage";
+export type ParkingType = "none" | "open" | "covered" | "garage" | "underground";
 
 export type WallMaterial =
   | "brick"

@@ -2,9 +2,19 @@
 import { useSessionStore } from "@/entities/session";
 import { useRouter } from "vue-router";
 import { Container, Button } from "@/shared/ui";
+import { ref } from "vue";
 
 const session = useSessionStore();
 const router = useRouter();
+const isSidebarOpen = ref(false);
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+const closeSidebar = () => {
+  isSidebarOpen.value = false;
+};
 
 const handleLogout = () => {
   session.logout();
@@ -14,27 +24,48 @@ const handleLogout = () => {
 
 <template>
   <div class="admin-layout">
-    <aside class="admin-sidebar">
-      <div class="admin-sidebar__logo">Admin Panel</div>
+    <div 
+      class="sidebar-backdrop" 
+      v-if="isSidebarOpen" 
+      @click="closeSidebar"
+    ></div>
+
+    <aside class="admin-sidebar" :class="{ 'admin-sidebar--open': isSidebarOpen }">
+      <div class="admin-sidebar__header">
+        <div class="admin-sidebar__logo">Admin Panel</div>
+        <button class="close-sidebar-btn" @click="closeSidebar">&times;</button>
+      </div>
+      
       <nav class="admin-nav">
-        <router-link to="/admin" class="admin-nav__link">Дашборд</router-link>
-        <router-link to="/admin/properties/create" class="admin-nav__link"
-          >Добавить объект</router-link
-        >
+        <router-link to="/admin" class="admin-nav__link" @click="closeSidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Объявления
+        </router-link>
+        <router-link to="/admin/properties/create" class="admin-nav__link" @click="closeSidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          Добавить объект
+        </router-link>
         <div class="admin-nav__divider"></div>
-        <router-link to="/" class="admin-nav__link"
-          >Вернуться на сайт</router-link
-        >
+        <router-link to="/" class="admin-nav__link" @click="closeSidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          Вернуться на сайт
+        </router-link>
       </nav>
       <div class="admin-sidebar__footer">
-        <Button variant="outline" @click="handleLogout" block class="logout-btn"
-          >Выйти</Button
-        >
+        <Button variant="outline" @click="handleLogout" block class="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          Выйти
+        </Button>
       </div>
     </aside>
 
     <main class="admin-content">
       <header class="admin-header">
+        <button class="hamburger-btn" @click="toggleSidebar">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <div class="admin-header__user">
           Привет, {{ session.user?.username }}
         </div>
@@ -46,7 +77,7 @@ const handleLogout = () => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .admin-layout {
   display: flex;
   min-height: 100vh;
@@ -87,6 +118,10 @@ const handleLogout = () => {
   color: #94a3b8;
   text-decoration: none;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
 }
 
 .admin-nav__link:hover,
@@ -133,4 +168,91 @@ const handleLogout = () => {
   border-color: #64748b !important;
   color: #fff !important;
 }
+
+/* Mobile Responsive Styles */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #334155;
+  border-radius: 2px;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.admin-sidebar__header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-sidebar-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.admin-sidebar__logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0; /* Reset margin since it's in header div now */
+}
+
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .admin-header {
+    justify-content: space-between;
+    padding: 0 1rem;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 50;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* This class needs to be added dynamically in script */
+  .admin-sidebar--open {
+    transform: translateX(0);
+  }
+  
+  .close-sidebar-btn {
+    display: block;
+  }
+
+  .admin-page-container {
+    padding: 1rem;
+  }
+}
+
 </style>

@@ -8,7 +8,7 @@
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .ui-container {
   width: 100%;
   padding-right: 1rem;

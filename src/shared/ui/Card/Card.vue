@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .ui-card {
   background-color: #ffffff;
   border-radius: 12px;

@@ -62,7 +62,7 @@ async function handleSubmit() {
   </Card>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .contact-form__title {
   margin: 0 0 0.5rem;
   font-size: 1.25rem;

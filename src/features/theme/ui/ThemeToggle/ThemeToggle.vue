@@ -75,7 +75,7 @@ onMounted(() => {
   </button>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .theme-toggle {
   background: transparent;
   border: none;

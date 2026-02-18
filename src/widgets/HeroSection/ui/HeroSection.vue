@@ -188,7 +188,7 @@ onMounted(() => {
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .hero-section {
   position: relative;
   min-height: 100vh; /* Full screen height to match image immersive feel */

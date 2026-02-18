@@ -1,6 +1,7 @@
-import type { Property } from "./types";
+const { Client } = require('pg');
 
-export const MOCK_PROPERTIES: Property[] = [
+// Mock data directly embedded to avoid TS compilation issues in a simple JS script
+const MOCK_PROPERTIES = [
   {
     id: 1,
     title: "Penthouse in Moscow City",
@@ -129,7 +130,7 @@ export const MOCK_PROPERTIES: Property[] = [
     title: "Minimalist City Apartment",
     price: 21000000,
     address: "Khamovniki District",
-    district: "Центр", // Mocked as Center for Tiraspol/Bender
+    district: "Центр",
     area: 75,
     rooms: 2,
     type: "apartment",
@@ -152,7 +153,7 @@ export const MOCK_PROPERTIES: Property[] = [
     title: "Historic Mansion",
     price: 150000000,
     address: "Old Arbat Street",
-    district: "Бородинка", // Mock district
+    district: "Бородинка",
     area: 350,
     rooms: 10,
     type: "house",
@@ -171,7 +172,7 @@ export const MOCK_PROPERTIES: Property[] = [
     title: "Tech Startup Office",
     price: 35000000,
     address: "Skolkovo Innovation Center",
-    district: "Ленинский", // Mock district for Bender
+    district: "Ленинский",
     area: 200,
     rooms: 5,
     type: "commercial",
@@ -209,3 +210,74 @@ export const MOCK_PROPERTIES: Property[] = [
     currency: "usd",
   },
 ];
+
+const connectionString = 'postgresql://postgres:' + encodeURIComponent('w?_iDA8x!NmaVmr') + '@db.tcnbedppcgsoatcipnks.supabase.co:5432/postgres';
+
+const client = new Client({
+  connectionString,
+});
+
+async function main() {
+  try {
+    await client.connect();
+    console.log('Connected to database.');
+
+    // 1. Create table
+    const fs = require('fs');
+    const path = require('path');
+    const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+    
+    console.log('Creating table...');
+    await client.query(schema);
+    console.log('Table properties created (if not exists).');
+
+    // 2. Insert data
+    console.log('Inserting data...');
+    
+    // Clear existing data to avoid duplicates if re-running
+    await client.query('TRUNCATE TABLE properties RESTART IDENTITY;');
+
+    for (const prop of MOCK_PROPERTIES) {
+      const query = `
+        INSERT INTO properties (
+          title, address, district, price, image_url, area, rooms, type, description,
+          rent_period, floor, total_floors, heating, building_type, building_status, parking,
+          source, verified, currency, images, video_url, city, house_number, living_area,
+          kitchen_area, ceiling_height, layout, bathroom, balcony, condition, amenities,
+          wall_material, position_in_building, apartment_series,
+          land_area, sewerage, gas, water, electricity, heating_sources, has_buildings,
+          commercial_types, land_type, road_type
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9,
+          $10, $11, $12, $13, $14, $15, $16,
+          $17, $18, $19, $20, $21, $22, $23, $24,
+          $25, $26, $27, $28, $29, $30, $31,
+          $32, $33, $34,
+          $35, $36, $37, $38, $39, $40, $41,
+          $42, $43, $44
+        )
+      `;
+
+      const values = [
+        prop.title, prop.address, prop.district, prop.price, prop.imageUrl, prop.area, prop.rooms, prop.type, prop.description,
+        prop.rentPeriod, prop.floor, prop.totalFloors, prop.heating, prop.buildingType, prop.buildingStatus, prop.parking,
+        prop.source, prop.verified, prop.currency, prop.images, prop.videoUrl, prop.city, prop.houseNumber, prop.livingArea,
+        prop.kitchenArea, prop.ceilingHeight, prop.layout, prop.bathroom, prop.balcony, prop.condition, prop.amenities,
+        prop.wallMaterial, prop.positionInBuilding, prop.apartmentSeries,
+        prop.landArea, prop.sewerage, prop.gas, prop.water, prop.electricity, prop.heatingSources, prop.hasBuildings,
+        prop.commercialTypes, prop.landType, prop.roadType
+      ];
+
+      await client.query(query, values);
+    }
+    
+    console.log(`Inserted ${MOCK_PROPERTIES.length} properties.`);
+
+  } catch (err) {
+    console.error('Error during seeding:', err);
+  } finally {
+    await client.end();
+  }
+}
+
+main();
