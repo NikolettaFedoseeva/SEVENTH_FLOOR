@@ -1,30 +1,41 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref } from "vue";
+import { supabase } from "@/shared/api/supabase";
+import { Session, User } from "@supabase/supabase-js";
 
 export const useSessionStore = defineStore("session", () => {
   const isAuth = ref(false);
-  const user = ref<{ username: string } | null>(null);
+  const user = ref<User | null>(null);
+  const session = ref<Session | null>(null);
 
-  const checkAuth = () => {
-    // Mock persistent auth check (could check localStorage here)
-    const stored = localStorage.getItem("isAuth");
-    if (stored === "true") {
+  const checkAuth = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
       isAuth.value = true;
-      user.value = { username: "admin" };
+      user.value = data.session.user;
+      session.value = data.session;
     }
   };
 
-  const login = (payload: { username: string; token: string }) => {
-    isAuth.value = true;
-    user.value = { username: payload.username };
-    localStorage.setItem("isAuth", "true");
+  const login = async (payload: { email: string; password: string }) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: payload.email,
+      password: payload.password,
+    });
+    if (error) throw error;
+    if (data.session) {
+      isAuth.value = true;
+      user.value = data.user;
+      session.value = data.session;
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     isAuth.value = false;
     user.value = null;
-    localStorage.removeItem("isAuth");
+    session.value = null;
   };
 
-  return { isAuth, user, login, logout, checkAuth };
+  return { isAuth, user, session, login, logout, checkAuth };
 });

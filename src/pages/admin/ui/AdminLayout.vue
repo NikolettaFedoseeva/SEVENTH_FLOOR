@@ -16,8 +16,8 @@ const closeSidebar = () => {
   isSidebarOpen.value = false;
 };
 
-const handleLogout = () => {
-  session.logout();
+const handleLogout = async () => {
+  await session.logout();
   router.push("/login");
 };
 </script>
@@ -67,7 +67,7 @@ const handleLogout = () => {
           <span></span>
         </button>
         <div class="admin-header__user">
-          Привет, {{ session.user?.username }}
+          Привет, {{ session.user?.email }}
         </div>
       </header>
       <div class="admin-page-container">

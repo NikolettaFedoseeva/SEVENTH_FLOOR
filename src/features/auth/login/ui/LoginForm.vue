@@ -2,7 +2,7 @@
 import { useLogin } from "../model/useLogin";
 import { Button, Input, Card } from "@/shared/ui";
 
-const { username, password, isLoading, error, handleLogin } = useLogin();
+const { email, password, isLoading, error, handleLogin } = useLogin();
 </script>
 
 <template>
@@ -11,13 +11,13 @@ const { username, password, isLoading, error, handleLogin } = useLogin();
 
     <form @submit.prevent="handleLogin" class="login-form__fields">
       <div class="field">
-        <label>Логин</label>
-        <Input v-model="username" placeholder="admin" />
+        <label>Email</label>
+        <Input v-model="email" placeholder="admin@example.com" />
       </div>
 
       <div class="field">
         <label>Пароль</label>
-        <Input v-model="password" type="password" placeholder="admin" />
+        <Input v-model="password" type="password" placeholder="Пароль" />
       </div>
 
       <div v-if="error" class="login-form__error">

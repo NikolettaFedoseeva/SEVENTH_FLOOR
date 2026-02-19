@@ -73,17 +73,20 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const session = useSessionStore();
-  // Ensure we check basic persistence
-  if (!session.isAuth) session.checkAuth();
+  
+  // Check auth state if not already authenticated
+  if (!session.isAuth) {
+    await session.checkAuth();
+  }
 
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!session.isAuth) {
-      next({ name: "Login" });
-    } else {
-      next();
-    }
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (requiresAuth && !session.isAuth) {
+    next({ name: "Login" });
+  } else if (to.name === "Login" && session.isAuth) {
+    next({ name: "Admin" });
   } else {
     next();
   }

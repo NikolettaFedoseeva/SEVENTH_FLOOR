@@ -3,7 +3,7 @@ import { useRouter } from "vue-router";
 import { useSessionStore } from "@/entities/session";
 
 export function useLogin() {
-  const username = ref("");
+  const email = ref("");
   const password = ref("");
   const isLoading = ref(false);
   const error = ref("");
@@ -15,24 +15,23 @@ export function useLogin() {
     error.value = "";
 
     try {
-      // Mock API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      if (username.value === "admin" && password.value === "admin") {
-        session.login({ username: username.value, token: "mock-token" });
-        router.push("/admin");
-      } else {
-        error.value = "Неверный логин или пароль";
+      if (!email.value || !password.value) {
+        error.value = "Введите email и пароль";
+        return;
       }
-    } catch (e) {
-      error.value = "Ошибка сервера";
+      
+      await session.login({ email: email.value, password: password.value });
+      router.push("/admin");
+    } catch (e: any) {
+      console.error(e);
+      error.value = e.message || "Ошибка входа";
     } finally {
       isLoading.value = false;
     }
   };
 
   return {
-    username,
+    email,
     password,
     isLoading,
     error,
