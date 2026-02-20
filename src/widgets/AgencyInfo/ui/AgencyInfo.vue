@@ -27,7 +27,7 @@ const stats = [
         <div class="agency-info__content">
           <span class="agency-info__subtitle">О компании</span>
           <h2 class="agency-info__title">
-            Почему выбирают <span class="text-highlight">Seventh Floor</span>
+            Почему выбирают <span class="text-highlight">СЕДЬМОЙ ЭТАЖ</span>
           </h2>
           <p class="agency-info__text">
             Мы не просто продаем квадратные метры. Наша работа - это экономия

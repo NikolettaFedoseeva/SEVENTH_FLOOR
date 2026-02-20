@@ -36,7 +36,7 @@ async function handleSubmit() {
 <template>
   <Card class="contact-form">
     <h3 class="contact-form__title">Оставить заявку</h3>
-    <p class="contact-form__subtitle">Мы перезвоним вам в течение 15 минут</p>
+    <p class="contact-form__subtitle">Если у вас появились вопросы, напишите нам!</p>
 
     <form class="contact-form__fields" @submit.prevent="handleSubmit">
       <Input v-model="form.name" label="Имя" placeholder="Ваше имя" required />
@@ -45,6 +45,13 @@ async function handleSubmit() {
         label="Телефон"
         type="tel"
         placeholder="+7 (___) ___-__-__"
+        required
+      />
+      <Input
+        v-model="form.message"
+        label="Сообщение"
+        type="textarea"
+        placeholder="Ваше сообщение"
         required
       />
       <div class="contact-form__actions">
