@@ -17,7 +17,7 @@ onMounted(() => {
         <!-- Main Content -->
         <div class="hero-section__content">
           <!-- Mobile Contact Info (Visible only on mobile) -->
-          <div class="hero-section__mobile-contacts">
+          <!-- <div class="hero-section__mobile-contacts">
             <div class="mobile-contact-item">
               <svg
                 width="20"
@@ -51,7 +51,7 @@ onMounted(() => {
                 <a href="tel:+37377794040">0(777) 94040</a>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <h1 class="hero-section__title">
             АГЕНТ ПО <br />
