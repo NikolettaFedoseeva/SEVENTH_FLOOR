@@ -29,26 +29,26 @@ const locationTree = reactive<LocationNode[]>([
           { label: "Центр", value: "Центр" }, // Tiraspol Center
         ],
       },
-      {
-        label: "Бендеры",
-        value: "Бендеры",
-        isOpen: false,
-        children: [
-          { label: "Борисовка", value: "Борисовка" },
-          { label: "Ленинский", value: "Ленинский" },
-          { label: "Солнечный", value: "Солнечный" },
-          { label: "Северный", value: "Северный" },
-          { label: "Шелковый", value: "Шелковый" },
-          { label: "Центр", value: "Центр" }, // Bender Center - naming collision handled by parent context in filtering usually, but here simple string match
-        ],
-      },
-      { label: "Рыбница", value: "Рыбница" },
+      //      {
+      //        label: "Бендеры",
+      //        value: "Бендеры",
+      //        isOpen: false,
+      //        children: [
+      //          { label: "Борисовка", value: "Борисовка" },
+      //          { label: "Ленинский", value: "Ленинский" },
+      //          { label: "Солнечный", value: "Солнечный" },
+      //          { label: "Северный", value: "Северный" },
+      //          { label: "Шелковый", value: "Шелковый" },
+      //          { label: "Центр", value: "Центр" }, // Bender Center - naming collision handled by parent context in filtering usually, but here simple string match
+      //        ],
+      //      },
+      //      { label: "Рыбница", value: "Рыбница" },
       { label: "Ближний Хутор", value: "Ближний Хутор" },
-      { label: "Григориополь", value: "Григориополь" },
+      //      { label: "Григориополь", value: "Григориополь" },
       { label: "Днестровск", value: "Днестровск" },
-      { label: "Дубоссары", value: "Дубоссары" },
-      { label: "Каменка", value: "Каменка" },
-      { label: "Маяк", value: "Маяк" },
+      //      { label: "Дубоссары", value: "Дубоссары" },
+      //      { label: "Каменка", value: "Каменка" },
+      //      { label: "Маяк", value: "Маяк" },
       { label: "Новотираспольский", value: "Новотираспольский" },
       { label: "Парканы", value: "Парканы" },
       { label: "Первомайск", value: "Первомайск" },
@@ -297,9 +297,10 @@ function toggleBuildingStatus(status: string) {
       </div>
 
       <!-- Ads Info -->
-      <div class="filter-group">
+      <!--<div class="filter-group">
         <h4 class="group-title">Объявления</h4>
         <div class="checkbox-list">
+         
           <div class="row-checkboxes">
             <label class="custom-checkbox">
               <input
@@ -321,6 +322,7 @@ function toggleBuildingStatus(status: string) {
             </label>
           </div>
           <div class="divider"></div>
+          
           <label class="custom-checkbox">
             <input type="checkbox" v-model="filters.withPhotos" />
             <span class="checkmark"></span>
@@ -334,7 +336,7 @@ function toggleBuildingStatus(status: string) {
             <span class="verified-icon">🏅</span>
           </label>
         </div>
-      </div>
+      </div>-->
 
       <!-- Rent Term -->
       <div class="filter-group">

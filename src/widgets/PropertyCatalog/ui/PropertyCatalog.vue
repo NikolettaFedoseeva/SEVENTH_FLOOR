@@ -208,33 +208,57 @@ function handleSearch(newFilters: FilterState) {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .property-catalog {
   padding: 4rem 0;
   background-color: var(--bg-primary);
   min-height: 80vh;
-}
 
-.property-catalog__header {
-  margin-bottom: 3rem;
-  text-align: center;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
+  &__header {
+    margin-bottom: 3rem;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-.property-catalog__title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin: 0 0 1rem;
-  letter-spacing: -0.025em;
-}
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+    letter-spacing: -0.025em;
+  }
 
-.property-catalog__subtitle {
-  font-size: 1.125rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
+  &__subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1280px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    padding: 4rem;
+    background: var(--bg-secondary);
+    border-radius: 1rem;
+  }
 }
 
 /* Layout */
@@ -242,50 +266,20 @@ function handleSearch(newFilters: FilterState) {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-}
 
-@media (min-width: 1024px) {
-  .catalog-layout {
+  @media (min-width: 1024px) {
     flex-direction: row;
     align-items: flex-start;
-  }
 
-  .catalog-sidebar {
-    width: 300px; /* Fixed width sidebar */
-    flex-shrink: 0;
-    margin-right: 2rem;
-  }
+    .catalog-sidebar {
+      width: 300px; /* Fixed width sidebar */
+      flex-shrink: 0;
+      margin-right: 2rem;
+    }
 
-  .catalog-main {
-    flex: 1;
-  }
-}
-
-.property-catalog__grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 2rem;
-}
-
-.property-catalog__empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-size: 1.25rem;
-  color: var(--text-secondary);
-  padding: 4rem;
-  background: var(--bg-secondary);
-  border-radius: 1rem;
-}
-
-@media (min-width: 768px) {
-  .property-catalog__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .property-catalog__grid {
-    grid-template-columns: repeat(3, 1fr);
+    .catalog-main {
+      flex: 1;
+    }
   }
 }
 

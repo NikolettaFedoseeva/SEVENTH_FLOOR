@@ -20,7 +20,7 @@ export abstract class BaseProperty implements Property {
   price: number;
   imageUrl: string;
   area: number;
-  rooms: number;
+  rooms: string | number;
   type: PropertyType;
   description: string;
   rentPeriod?: RentPeriod;
@@ -41,10 +41,12 @@ export abstract class BaseProperty implements Property {
   kitchenArea?: number;
   ceilingHeight?: number;
   layout?: LayoutType;
+  roomType?: string;
   bathroom?: BathroomType;
   balcony?: BalconyType;
   condition?: ConditionType;
   amenities?: string[];
+  constructionType?: string;
 
   constructor(data: Property) {
     this.id = data.id;
@@ -75,9 +77,11 @@ export abstract class BaseProperty implements Property {
     this.kitchenArea = data.kitchenArea;
     this.ceilingHeight = data.ceilingHeight;
     this.layout = data.layout;
+    this.roomType = data.roomType;
     this.bathroom = data.bathroom;
     this.balcony = data.balcony;
     this.condition = data.condition;
     this.amenities = data.amenities;
+    this.constructionType = data.constructionType;
   }
 }

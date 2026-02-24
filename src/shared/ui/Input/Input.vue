@@ -9,6 +9,7 @@ interface Props {
   disabled?: boolean;
   error?: string;
   id?: string;
+  maxlength?: string | number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -31,9 +32,25 @@ const value = computed({
   get() {
     return props.modelValue;
   },
-  set(val) {
+  set(val: string | number) {
     emit("update:modelValue", val);
   },
+});
+
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (props.type === "number") {
+    // Remove all non-digit characters
+    const numericValue = target.value.replace(/\D/g, "");
+    target.value = numericValue;
+    value.value = numericValue;
+  } else {
+    value.value = target.value;
+  }
+};
+
+const inputType = computed(() => {
+  return props.type === "number" ? "text" : props.type;
 });
 </script>
 
@@ -43,10 +60,12 @@ const value = computed({
     <div class="ui-input-container">
       <input
         :id="id"
-        v-model="value"
-        :type="type"
+        :value="value"
+        @input="handleInput"
+        :type="inputType"
         :placeholder="placeholder"
         :disabled="disabled"
+        :maxlength="maxlength"
         class="ui-input"
         @blur="emit('blur', $event)"
         @focus="emit('focus', $event)"
@@ -76,7 +95,7 @@ const value = computed({
 
 .ui-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem;
   font-size: 1rem;
   line-height: 1.5;
   color: #1f2937;
@@ -85,12 +104,13 @@ const value = computed({
   border-radius: 8px;
   transition: border-color 0.2s, box-shadow 0.2s;
   font-family: inherit;
+  height: 40px;
 }
 
 .ui-input:focus {
   outline: none;
   border-color: #2b2b2b;
-  box-shadow: 0 0 0 3px rgba(43, 43, 43, 0.1);
+  // box-shadow: 0 0 0 3px rgba(43, 43, 43, 0.1);
 }
 
 .ui-input:disabled {

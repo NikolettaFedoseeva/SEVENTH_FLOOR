@@ -88,7 +88,7 @@ export interface Property {
   price: number;
   imageUrl: string;
   area: number;
-  rooms: number;
+  rooms: string | number;
   type: PropertyType;
   description: string;
   // New fields for advanced filtering
@@ -110,12 +110,14 @@ export interface Property {
   kitchenArea?: number;
   ceilingHeight?: number;
   layout?: LayoutType;
+  roomType?: string; // e.g. "separate", "adjoining"
   bathroom?: BathroomType;
   balcony?: BalconyType;
   condition?: ConditionType;
   amenities?: string[];
   // Detailed apartment fields
   wallMaterial?: WallMaterial;
+  constructionType?: string;
   positionInBuilding?: PositionInBuilding;
   apartmentSeries?: ApartmentSeries;
 

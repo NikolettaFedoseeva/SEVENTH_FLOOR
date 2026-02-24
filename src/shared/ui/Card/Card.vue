@@ -29,16 +29,19 @@ const props = withDefaults(defineProps<Props>(), {
   border: 1px solid #e5e7eb;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-}
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
-.ui-card--padding {
-  padding: 1.5rem;
-}
+  &--padding {
+    padding: 1rem;
+  }
 
-.ui-card--hoverable:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-color: #d1d5db;
+  &--hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
+  }
 }
 </style>
