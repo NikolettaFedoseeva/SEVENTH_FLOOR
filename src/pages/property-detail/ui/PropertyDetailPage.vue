@@ -24,7 +24,7 @@ useHead({
       content: computed(
         () =>
           property.value?.description?.slice(0, 160) ||
-          "Подробная информация об объекте недвижимости."
+          "Подробная информация об объекте недвижимости.",
       ),
     },
   ],
@@ -54,12 +54,19 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
             <h1 class="property-title">{{ property.title }}</h1>
             <div class="property-price">
               {{ property.price.toLocaleString("ru-RU") }}
-              {{ property.currency === "eur" ? "€" : property.currency === "mdl" ? "MDL" : "$" }}
+              {{
+                property.currency === "eur"
+                  ? "€"
+                  : property.currency === "mdl"
+                  ? "MDL"
+                  : "$"
+              }}
             </div>
           </div>
 
           <div class="property-detail__address">
-            📍 {{ property.city ? property.city + ", " : "" }}{{ property.address }}
+            📍 {{ property.city ? property.city + ", " : ""
+            }}{{ property.address }}
           </div>
 
           <div class="property-detail__content">
@@ -75,7 +82,9 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
               <Card class="property-specs">
                 <div class="spec-row">
                   <span class="spec-label">Тип</span>
-                  <span class="spec-value">{{ getPropertyLabel("type", property.type) }}</span>
+                  <span class="spec-value">{{
+                    getPropertyLabel("type", property.type)
+                  }}</span>
                 </div>
                 <div class="spec-row" v-if="property.area">
                   <span class="spec-label">Площадь</span>
@@ -88,7 +97,10 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
                 <div class="spec-row" v-if="property.floor">
                   <span class="spec-label">Этаж</span>
                   <span class="spec-value">
-                    {{ property.floor }}{{ property.totalFloors ? ` из ${property.totalFloors}` : "" }}
+                    {{ property.floor
+                    }}{{
+                      property.totalFloors ? ` из ${property.totalFloors}` : ""
+                    }}
                   </span>
                 </div>
                 <div class="spec-row" v-if="property.landArea">
@@ -96,8 +108,6 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
                   <span class="spec-value">{{ property.landArea }} соток</span>
                 </div>
               </Card>
-
-
             </aside>
           </div>
 
@@ -105,85 +115,138 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
           <div class="property-section">
             <h2 class="section-title">Характеристики</h2>
             <div class="characteristics-grid">
-               <!-- Common -->
-               <div class="char-item" v-if="property.buildingType">
-                  <span class="char-label">Тип здания</span>
-                  <span class="char-value">{{ getPropertyLabel("buildingType", property.buildingType) }}</span>
-               </div>
-               <div class="char-item" v-if="property.buildingStatus && property.buildingType === 'new'">
-                  <span class="char-label">Статус</span>
-                  <span class="char-value">{{ getPropertyLabel("buildingStatus", property.buildingStatus) }}</span>
-               </div>
-               <div class="char-item" v-if="property.condition">
-                  <span class="char-label">Состояние</span>
-                  <span class="char-value">{{ getPropertyLabel("condition", property.condition) }}</span>
-               </div>
-               <div class="char-item" v-if="property.heating">
-                  <span class="char-label">Отопление</span>
-                  <span class="char-value">{{ getPropertyLabel("heating", property.heating) }}</span>
-               </div>
-               <div class="char-item" v-if="property.parking && property.parking !== 'none'">
-                  <span class="char-label">Парковка</span>
-                  <span class="char-value">{{ getPropertyLabel("parking", property.parking) }}</span>
-               </div>
-               <div class="char-item" v-if="property.ceilingHeight">
-                  <span class="char-label">Высота потолков</span>
-                  <span class="char-value">{{ property.ceilingHeight }} м</span>
-               </div>
+              <!-- Common -->
+              <div class="char-item" v-if="property.buildingType">
+                <span class="char-label">Тип здания</span>
+                <span class="char-value">{{
+                  getPropertyLabel("buildingType", property.buildingType)
+                }}</span>
+              </div>
+              <div
+                class="char-item"
+                v-if="
+                  property.buildingStatus && property.buildingType === 'new'
+                "
+              >
+                <span class="char-label">Статус</span>
+                <span class="char-value">{{
+                  getPropertyLabel("buildingStatus", property.buildingStatus)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.condition">
+                <span class="char-label">Состояние</span>
+                <span class="char-value">{{
+                  getPropertyLabel("condition", property.condition)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.heating">
+                <span class="char-label">Отопление</span>
+                <span class="char-value">{{
+                  getPropertyLabel("heating", property.heating)
+                }}</span>
+              </div>
+              <div
+                class="char-item"
+                v-if="property.parking && property.parking !== 'none'"
+              >
+                <span class="char-label">Парковка</span>
+                <span class="char-value">{{
+                  getPropertyLabel("parking", property.parking)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.ceilingHeight">
+                <span class="char-label">Высота потолков</span>
+                <span class="char-value">{{ property.ceilingHeight }} м</span>
+              </div>
 
-               <!-- Commercial Specific -->
-                <div class="char-item" v-if="property.commercialTypes && property.commercialTypes.length">
-                  <span class="char-label">Назначение</span>
-                  <span class="char-value">{{ getPropertyLabel("commercialTypes", property.commercialTypes) }}</span>
-                </div>
+              <!-- Commercial Specific -->
+              <div
+                class="char-item"
+                v-if="
+                  property.commercialTypes && property.commercialTypes.length
+                "
+              >
+                <span class="char-label">Назначение</span>
+                <span class="char-value">{{
+                  getPropertyLabel("commercialTypes", property.commercialTypes)
+                }}</span>
+              </div>
 
-               <!-- Apartment Specific -->
-               <div class="char-item" v-if="property.wallMaterial">
-                  <span class="char-label">Стены</span>
-                  <span class="char-value">{{ getPropertyLabel("wallMaterial", property.wallMaterial) }}</span>
-               </div>
-               <div class="char-item" v-if="property.apartmentSeries">
-                  <span class="char-label">Серия</span>
-                  <span class="char-value">{{ getPropertyLabel("apartmentSeries", property.apartmentSeries) }}</span>
-               </div>
-               <div class="char-item" v-if="property.balcony && property.balcony !== 'none'">
-                  <span class="char-label">Балкон</span>
-                  <span class="char-value">{{ getPropertyLabel("balcony", property.balcony) }}</span>
-               </div>
-               <div class="char-item" v-if="property.bathroom">
-                  <span class="char-label">Санузел</span>
-                  <span class="char-value">{{ getPropertyLabel("bathroom", property.bathroom) }}</span>
-               </div>
+              <!-- Apartment Specific -->
+              <div class="char-item" v-if="property.wallMaterial">
+                <span class="char-label">Стены</span>
+                <span class="char-value">{{
+                  getPropertyLabel("wallMaterial", property.wallMaterial)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.apartmentSeries">
+                <span class="char-label">Серия</span>
+                <span class="char-value">{{
+                  getPropertyLabel("apartmentSeries", property.apartmentSeries)
+                }}</span>
+              </div>
+              <div
+                class="char-item"
+                v-if="property.balcony && property.balcony !== 'none'"
+              >
+                <span class="char-label">Балкон</span>
+                <span class="char-value">{{
+                  getPropertyLabel("balcony", property.balcony)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.bathroom">
+                <span class="char-label">Санузел</span>
+                <span class="char-value">{{
+                  getPropertyLabel("bathroom", property.bathroom)
+                }}</span>
+              </div>
 
-               <!-- House/Land Specific -->
-               <div class="char-item" v-if="property.gas">
-                  <span class="char-label">Газ</span>
-                  <span class="char-value">{{ getPropertyLabel("gas", property.gas) }}</span>
-               </div>
-               <div class="char-item" v-if="property.water">
-                   <span class="char-label">Вода</span>
-                   <span class="char-value">{{ getPropertyLabel("water", property.water) }}</span>
-               </div>
-               <div class="char-item" v-if="property.sewerage">
-                   <span class="char-label">Канализация</span>
-                   <span class="char-value">{{ getPropertyLabel("sewerage", property.sewerage) }}</span>
-               </div>
-                 <div class="char-item" v-if="property.electricity !== undefined">
-                   <span class="char-label">Электричество</span>
-                   <span class="char-value">{{ property.electricity ? 'Есть' : 'Нет' }}</span>
-               </div>
-                <div class="char-item" v-if="property.roadType">
-                   <span class="char-label">Дорога</span>
-                   <span class="char-value">{{ getPropertyLabel("roadType", property.roadType) }}</span>
-               </div>
+              <!-- House/Land Specific -->
+              <div class="char-item" v-if="property.gas">
+                <span class="char-label">Газ</span>
+                <span class="char-value">{{
+                  getPropertyLabel("gas", property.gas)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.water">
+                <span class="char-label">Вода</span>
+                <span class="char-value">{{
+                  getPropertyLabel("water", property.water)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.sewerage">
+                <span class="char-label">Канализация</span>
+                <span class="char-value">{{
+                  getPropertyLabel("sewerage", property.sewerage)
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.electricity !== undefined">
+                <span class="char-label">Электричество</span>
+                <span class="char-value">{{
+                  property.electricity ? "Есть" : "Нет"
+                }}</span>
+              </div>
+              <div class="char-item" v-if="property.roadType">
+                <span class="char-label">Дорога</span>
+                <span class="char-value">{{
+                  getPropertyLabel("roadType", property.roadType)
+                }}</span>
+              </div>
             </div>
           </div>
 
           <!-- Amenities Section -->
-          <div class="property-section" v-if="property.amenities && property.amenities.length">
+          <div
+            class="property-section"
+            v-if="property.amenities && property.amenities.length"
+          >
             <h2 class="section-title">Удобства</h2>
             <div class="amenities-list">
-              <span v-for="amenity in property.amenities" :key="amenity" class="amenity-tag">
+              <span
+                v-for="amenity in property.amenities"
+                :key="amenity"
+                class="amenity-tag"
+              >
                 {{ getPropertyLabel("amenities", amenity) }}
               </span>
             </div>
@@ -194,7 +257,6 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
             <h2 class="section-title">Описание</h2>
             <p class="description-text">{{ property.description }}</p>
           </div>
-
         </div>
 
         <div v-else class="not-found">
@@ -215,7 +277,7 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
 
   &__main {
     flex: 1;
-    padding: 120px 0 4rem;
+    padding: 4rem 0 4rem;
     background-color: #f8fafc;
   }
 }
@@ -309,7 +371,7 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
   background: white;
   padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
@@ -341,7 +403,6 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
   font-weight: 500;
   color: #0f172a;
 }
-
 
 .amenities-list {
   display: flex;

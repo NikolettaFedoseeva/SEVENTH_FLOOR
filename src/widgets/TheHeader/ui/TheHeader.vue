@@ -47,7 +47,9 @@ import { Container } from "@/shared/ui";
   padding: 1rem 0;
   color: white;
   transition: all 0.3s ease;
-
+  @media (max-width: 768px) {
+    min-height: 70px;
+  }
   &__container-wrapper {
     position: relative;
   }
@@ -87,6 +89,11 @@ import { Container } from "@/shared/ui";
     font-weight: bold;
     font-size: 0.8rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+      font-size: 0.6rem;
+    }
   }
 
   &__brand-text {
