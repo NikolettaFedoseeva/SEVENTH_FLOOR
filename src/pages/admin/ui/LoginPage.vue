@@ -20,11 +20,10 @@ import { Container } from "@/shared/ui";
   align-items: center;
   justify-content: center;
   background-color: #f1f5f9;
-}
-
-.login-page__content {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  &__content {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
 }
 </style>

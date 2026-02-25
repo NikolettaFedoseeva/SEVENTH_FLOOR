@@ -35,6 +35,9 @@ const { properties } = storeToRefs(store);
 
 const filteredProperties = computed(() => {
   return properties.value.filter((property: Property) => {
+    // 0. Exclude Soft Deleted
+    if (property.isRemove) return false;
+
     // 1. Search (Title or Address)
     const searchText = filters.search.toLowerCase();
     if (searchText) {
@@ -86,9 +89,10 @@ const filteredProperties = computed(() => {
       // Assuming mock properties have 'rooms' as number.
       // "4+" means rooms >= 4. "separate" we might not have data for, skipping for now or assume 1?
       const match = filters.rooms.some((r) => {
-        if (r === "4+") return property.rooms >= 4;
-        if (r === "separate") return property.rooms === 1; // Simplification
-        return property.rooms === parseInt(r);
+        const pRooms = Number(property.rooms);
+        if (r === "4+") return pRooms >= 4;
+        if (r === "separate") return pRooms === 1; // Simplification
+        return pRooms === parseInt(r);
       });
       if (!match) return false;
     }

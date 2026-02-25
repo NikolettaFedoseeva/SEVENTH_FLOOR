@@ -36,20 +36,26 @@ const { email, password, isLoading, error, handleLogin } = useLogin();
   max-width: 400px;
   width: 100%;
   padding: 2rem;
-}
-
-.login-form__title {
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.login-form__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  &__title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  &__error {
+    padding: 0.75rem;
+    background-color: #fef2f2;
+    color: #ef4444;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-align: center;
+  }
 }
 
 .field {
@@ -62,14 +68,5 @@ const { email, password, isLoading, error, handleLogin } = useLogin();
   font-size: 0.875rem;
   font-weight: 500;
   color: #64748b;
-}
-
-.login-form__error {
-  padding: 0.75rem;
-  background-color: #fef2f2;
-  color: #ef4444;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  text-align: center;
 }
 </style>

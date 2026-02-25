@@ -295,49 +295,6 @@ function toggleBuildingStatus(status: string) {
           </div>
         </div>
       </div>
-
-      <!-- Ads Info -->
-      <!--<div class="filter-group">
-        <h4 class="group-title">Объявления</h4>
-        <div class="checkbox-list">
-         
-          <div class="row-checkboxes">
-            <label class="custom-checkbox">
-              <input
-                type="checkbox"
-                value="internet"
-                v-model="filters.adTypes"
-              />
-              <span class="checkmark"></span>
-              <span class="label-text">интернет</span>
-            </label>
-            <label class="custom-checkbox">
-              <input
-                type="checkbox"
-                value="newspaper"
-                v-model="filters.adTypes"
-              />
-              <span class="checkmark"></span>
-              <span class="label-text">газетные</span>
-            </label>
-          </div>
-          <div class="divider"></div>
-          
-          <label class="custom-checkbox">
-            <input type="checkbox" v-model="filters.withPhotos" />
-            <span class="checkmark"></span>
-            <span class="label-text">с фотографиями</span>
-          </label>
-          <div class="divider"></div>
-          <label class="custom-checkbox">
-            <input type="checkbox" v-model="filters.verified" />
-            <span class="checkmark"></span>
-            <span class="label-text">проверенных пользователей</span>
-            <span class="verified-icon">🏅</span>
-          </label>
-        </div>
-      </div>-->
-
       <!-- Rent Term -->
       <div class="filter-group">
         <h4 class="group-title">Срок аренды</h4>

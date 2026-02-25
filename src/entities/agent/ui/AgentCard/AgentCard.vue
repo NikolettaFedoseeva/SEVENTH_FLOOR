@@ -40,41 +40,35 @@ defineProps<Props>();
   gap: 1rem;
   background-color: var(--bg-secondary);
   transition: background-color 0.3s ease;
-}
-
-.agent-card__header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.agent-card__avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.agent-card__info {
-  flex: 1;
-}
-
-.agent-card__name {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.agent-card__role {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-}
-
-.agent-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  &__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  &__info {
+    flex: 1;
+  }
+  &__name {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  &__role {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 </style>

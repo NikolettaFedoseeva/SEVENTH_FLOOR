@@ -115,6 +115,7 @@ export interface Property {
   balcony?: BalconyType;
   condition?: ConditionType;
   amenities?: string[];
+  isRemove?: boolean;
   // Detailed apartment fields
   wallMaterial?: WallMaterial;
   constructionType?: string;

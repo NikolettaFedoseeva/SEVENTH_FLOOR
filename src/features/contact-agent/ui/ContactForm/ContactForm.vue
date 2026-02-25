@@ -36,7 +36,9 @@ async function handleSubmit() {
 <template>
   <Card class="contact-form">
     <h3 class="contact-form__title">Оставить заявку</h3>
-    <p class="contact-form__subtitle">Если у вас появились вопросы, напишите нам!</p>
+    <p class="contact-form__subtitle">
+      Если у вас появились вопросы, напишите нам!
+    </p>
 
     <form class="contact-form__fields" @submit.prevent="handleSubmit">
       <Input v-model="form.name" label="Имя" placeholder="Ваше имя" required />
@@ -44,7 +46,7 @@ async function handleSubmit() {
         v-model="form.phone"
         label="Телефон"
         type="tel"
-        placeholder="+7 (___) ___-__-__"
+        placeholder="+373 (___) ___-__"
         required
       />
       <Input
@@ -70,26 +72,25 @@ async function handleSubmit() {
 </template>
 
 <style lang="scss" scoped>
-.contact-form__title {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.contact-form__subtitle {
-  margin: 0 0 1.5rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.contact-form__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.contact-form__actions {
-  margin-top: 0.5rem;
+.contact-form {
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  &__subtitle {
+    margin: 0 0 1.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  &__actions {
+    margin-top: 0.5rem;
+  }
 }
 </style>

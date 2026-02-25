@@ -47,6 +47,7 @@ export abstract class BaseProperty implements Property {
   condition?: ConditionType;
   amenities?: string[];
   constructionType?: string;
+  isRemove?: boolean;
 
   constructor(data: Property) {
     this.id = data.id;
@@ -83,5 +84,6 @@ export abstract class BaseProperty implements Property {
     this.condition = data.condition;
     this.amenities = data.amenities;
     this.constructionType = data.constructionType;
+    this.isRemove = data.isRemove;
   }
 }

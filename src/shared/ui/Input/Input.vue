@@ -4,12 +4,13 @@ import { computed } from "vue";
 interface Props {
   modelValue?: string | number;
   label?: string;
-  type?: "text" | "number" | "email" | "password" | "tel";
+  type?: "text" | "number" | "email" | "password" | "tel" | "textarea";
   placeholder?: string;
   disabled?: boolean;
   error?: string;
   id?: string;
   maxlength?: string | number;
+  rows?: string | number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -58,7 +59,21 @@ const inputType = computed(() => {
   <div class="ui-input-wrapper" :class="{ 'ui-input-wrapper--error': error }">
     <label v-if="label" :for="id" class="ui-input-label">{{ label }}</label>
     <div class="ui-input-container">
+      <textarea
+        v-if="type === 'textarea'"
+        :id="id"
+        :value="value"
+        @input="handleInput"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :maxlength="maxlength"
+        :rows="rows || 3"
+        class="ui-input ui-textarea"
+        @blur="emit('blur', $event)"
+        @focus="emit('focus', $event)"
+      />
       <input
+        v-else
         :id="id"
         :value="value"
         @input="handleInput"
@@ -107,6 +122,12 @@ const inputType = computed(() => {
   height: 40px;
 }
 
+.ui-textarea {
+  height: auto;
+  resize: vertical;
+  min-height: 80px;
+}
+
 .ui-input:focus {
   outline: none;
   border-color: #2b2b2b;
@@ -125,7 +146,7 @@ const inputType = computed(() => {
 
 .ui-input-wrapper--error .ui-input:focus {
   border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  // box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .ui-input-error {

@@ -228,6 +228,8 @@ const handleLogout = async () => {
 
 .admin-header {
   height: 64px;
+  min-height: 64px;
+  flex-shrink: 0;
   background-color: white;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
