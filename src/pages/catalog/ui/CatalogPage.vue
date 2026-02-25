@@ -4,16 +4,17 @@ import { storeToRefs } from "pinia";
 import type { Property } from "@/entities/property/model/types";
 import { useHead } from "@unhead/vue";
 import { usePropertiesStore } from "@/entities/property/model/store";
-import { TheHeader, TheFooter, PropertyCatalog } from "@/widgets";
+import { PropertyCatalog } from "@/widgets";
 
 useHead({
   title: "Каталог недвижимости",
   meta: [
     {
       name: "description",
-      content: "Большой выбор недвижимости в Тирасполе. Квартиры, дома, коммерческие помещения. Актуальные цены и фото."
-    }
-  ]
+      content:
+        "Большой выбор недвижимости в Тирасполе. Квартиры, дома, коммерческие помещения. Актуальные цены и фото.",
+    },
+  ],
 });
 
 const propertiesStore = usePropertiesStore();
@@ -23,16 +24,13 @@ onMounted(() => {
 });
 </script>
 
-
 <template>
   <div class="catalog-page">
-    <TheHeader />
     <main>
       <div class="catalog-page__content">
         <PropertyCatalog />
       </div>
     </main>
-    <TheFooter />
   </div>
 </template>
 

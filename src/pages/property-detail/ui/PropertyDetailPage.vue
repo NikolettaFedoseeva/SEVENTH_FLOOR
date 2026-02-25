@@ -4,7 +4,6 @@ import { useRoute } from "vue-router";
 import { usePropertiesStore } from "@/entities/property";
 import { storeToRefs } from "pinia";
 import { Container, Button, Card } from "@/shared/ui";
-import { TheHeader, TheFooter } from "@/widgets";
 import { useHead } from "@unhead/vue";
 
 const route = useRoute();
@@ -43,7 +42,6 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
 
 <template>
   <div class="property-page">
-    <TheHeader />
     <main class="property-page__main">
       <Container>
         <div v-if="loading" class="loading-state">
@@ -265,7 +263,6 @@ import { getPropertyLabel } from "@/entities/property/model/dictionary";
         </div>
       </Container>
     </main>
-    <TheFooter />
   </div>
 </template>
 

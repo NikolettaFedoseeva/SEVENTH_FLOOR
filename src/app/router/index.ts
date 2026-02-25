@@ -7,23 +7,29 @@ import { useSessionStore } from "@/entities/session";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "Home",
-    component: HomePage,
-  },
-  {
-    path: "/catalog",
-    name: "Catalog",
-    component: CatalogPage,
-  },
-  {
-    path: "/catalog/:id",
-    name: "PropertyDetail",
-    component: PropertyDetailPage,
-  },
-  {
-    path: "/contacts",
-    name: "Contacts",
-    component: ContactsPage,
+    component: () => import("@/app/layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "Home",
+        component: HomePage,
+      },
+      {
+        path: "catalog",
+        name: "Catalog",
+        component: CatalogPage,
+      },
+      {
+        path: "catalog/:id",
+        name: "PropertyDetail",
+        component: PropertyDetailPage,
+      },
+      {
+        path: "contacts",
+        name: "Contacts",
+        component: ContactsPage,
+      },
+    ],
   },
   {
     path: "/login",
@@ -75,7 +81,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const session = useSessionStore();
-  
+
   // Check auth state if not already authenticated
   if (!session.isAuth) {
     await session.checkAuth();

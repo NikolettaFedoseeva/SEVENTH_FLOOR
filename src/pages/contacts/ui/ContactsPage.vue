@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { TheHeader, TheFooter } from "@/widgets";
 import { ContactForm } from "@/features/contact-agent";
 import { Container } from "@/shared/ui";
 </script>
 
 <template>
   <div class="contacts-page">
-    <TheHeader />
     <main>
       <Container>
         <div class="contacts-page__content">
@@ -63,7 +61,6 @@ import { Container } from "@/shared/ui";
         </div> -->
       </Container>
     </main>
-    <TheFooter />
   </div>
 </template>
 

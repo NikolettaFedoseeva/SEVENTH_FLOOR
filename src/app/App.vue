@@ -6,18 +6,15 @@ useHead({
   meta: [
     {
       name: "description",
-      content: "Агентство недвижимости 7 Этаж в Тирасполе и ПМР. Продажа и аренда квартир, домов, коммерческой недвижимости."
-    }
-  ]
+      content:
+        "Агентство недвижимости 7 Этаж в Тирасполе и ПМР. Продажа и аренда квартир, домов, коммерческой недвижимости.",
+    },
+  ],
 });
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <transition name="fade" mode="out-in">
-      <component :is="Component" />
-    </transition>
-  </router-view>
+  <router-view />
 </template>
 
 <style lang="scss">
