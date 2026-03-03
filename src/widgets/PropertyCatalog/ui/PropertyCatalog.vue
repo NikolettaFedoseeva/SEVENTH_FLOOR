@@ -3,7 +3,7 @@ import { reactive, computed } from "vue";
 import { FilterPanel, type FilterState } from "@/features/property-search";
 import { PropertyCard } from "@/entities/property";
 import { usePropertiesStore } from "@/entities/property"; // Import store
-import { Container } from "@/shared/ui";
+import { Container, Input } from "@/shared/ui";
 import { storeToRefs } from "pinia";
 import type { Property } from "@/entities/property/model/types";
 
@@ -172,7 +172,9 @@ const filteredProperties = computed(() => {
 function handleSearch(newFilters: FilterState) {
   // Deep merge or replace
   // filters is reactive, we can't just replace the object, need to update properties
+  const currentSearch = filters.search;
   Object.assign(filters, newFilters);
+  filters.search = currentSearch;
 }
 </script>
 
@@ -181,6 +183,14 @@ function handleSearch(newFilters: FilterState) {
     <Container>
       <div class="property-catalog__header">
         <h2 class="property-catalog__title">Каталог недвижимости</h2>
+      </div>
+
+      <div class="property-catalog__search">
+        <Input
+          v-model="filters.search"
+          placeholder="Поиск по названию или адресу..."
+          size="lg"
+        />
       </div>
 
       <div class="catalog-layout">
@@ -230,8 +240,13 @@ function handleSearch(newFilters: FilterState) {
     font-size: 2.5rem;
     font-weight: 800;
     color: var(--text-primary);
-    margin: 0 0 1rem;
+    margin: 0;
     letter-spacing: -0.025em;
+  }
+
+  &__search {
+    margin-bottom: 2rem;
+    width: 100%;
   }
 
   &__subtitle {
