@@ -2,8 +2,12 @@
 import { useRoute } from "vue-router";
 import { CreatePropertyForm } from "@/features/manage-property/create";
 
+// #region refs
 const route = useRoute();
 const propertyId = route.params.id as string;
+// #endregion refs
+
+defineExpose({});
 </script>
 
 <template>

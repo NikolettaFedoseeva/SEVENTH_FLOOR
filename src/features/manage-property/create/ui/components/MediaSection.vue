@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, type PropType } from "vue";
 import { Card, Input } from "@/shared/ui";
-import { uploadImageToCloudinary } from "@/shared/api/cloudinary";
 
-const props = defineProps<{
-  form: any;
-}>();
+// #region defineProps
+const props = defineProps({
+  form: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+});
+// #endregion defineProps
 
-const isUploading = ref(false);
+// #region refs
+const isUploading = ref<boolean>(false);
 const uploadError = ref<string | null>(null);
+// #endregion refs
 
-const handleFileUpload = async (event: Event) => {
+// #region Функции
+const handleFileUpload = async (event: Event): Promise<void> => {
   const target = event.target as HTMLInputElement;
   if (!target.files || target.files.length === 0) return;
 
@@ -20,16 +27,15 @@ const handleFileUpload = async (event: Event) => {
   try {
     const files = Array.from(target.files);
 
-    // Upload each file
-    const uploadPromises = files.map((file) => uploadImageToCloudinary(file));
-    const urls = await Promise.all(uploadPromises);
+    // Create a local blob URL for each selected file for immediate preview
+    const urls = files.map((file) => URL.createObjectURL(file));
 
     // Initialize images array if it doesn't exist
     if (!props.form.images) {
       props.form.images = [];
     }
 
-    // Add new URLs to the form
+    // Add new local URLs to the form
     props.form.images.push(...urls);
 
     // Set the first image as the main image if not set
@@ -39,7 +45,7 @@ const handleFileUpload = async (event: Event) => {
   } catch (err: any) {
     console.error("Upload failed", err);
     uploadError.value =
-      "Ошибка загрузки изображения: " + (err.message || "Неизвестная ошибка");
+      "Ошибка обработки изображения: " + (err.message || "Неизвестная ошибка");
   } finally {
     isUploading.value = false;
     // Reset input
@@ -47,7 +53,7 @@ const handleFileUpload = async (event: Event) => {
   }
 };
 
-const removeImage = (index: number) => {
+const removeImage = (index: number): void => {
   if (!props.form.images) return;
 
   const removedUrl = props.form.images[index];
@@ -60,9 +66,12 @@ const removeImage = (index: number) => {
   }
 };
 
-const setMainImage = (url: string) => {
+const setMainImage = (url: string): void => {
   props.form.imageUrl = url;
 };
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

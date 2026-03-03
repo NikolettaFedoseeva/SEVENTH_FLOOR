@@ -5,16 +5,23 @@ import { usePropertiesStore } from "@/entities/property";
 import { storeToRefs } from "pinia";
 import { Container, Button, Card } from "@/shared/ui";
 import { useHead } from "@unhead/vue";
+import { getPropertyLabel } from "@/entities/property/model/dictionary";
+import type { Property } from "@/entities/property/model/types";
 
+// #region refs
 const route = useRoute();
 const store = usePropertiesStore();
 const { properties, loading } = storeToRefs(store);
+// #endregion refs
 
-const property = computed(() => {
+// #region computed
+const property = computed<Property | undefined>(() => {
   const id = route.params.id;
-  return properties.value.find((p) => String(p.id) === String(id));
+  return properties.value.find((p: Property) => String(p.id) === String(id));
 });
+// #endregion computed
 
+// #region Хуки жизненного цикла
 useHead({
   title: computed(() => property.value?.title || "Загрузка..."),
   meta: [
@@ -36,8 +43,9 @@ onMounted(async () => {
     await store.fetchPropertyById(id as string);
   }
 });
+// #endregion Хуки жизненного цикла
 
-import { getPropertyLabel } from "@/entities/property/model/dictionary";
+defineExpose({});
 </script>
 
 <template>

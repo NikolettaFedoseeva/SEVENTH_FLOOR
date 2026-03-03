@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { Card, CustomButton } from "@/shared/ui";
+import { type PropType } from "vue";
 import type { Agent } from "../../model/types";
 
-interface Props {
-  agent: Agent;
-}
+// #region defineProps
+const props = defineProps({
+  agent: {
+    type: Object as PropType<Agent>,
+    required: true,
+  },
+});
+// #endregion defineProps
 
-defineProps<Props>();
+defineExpose({});
 </script>
 
 <template>

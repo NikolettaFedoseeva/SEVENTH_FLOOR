@@ -2,15 +2,18 @@
 import { reactive, ref } from "vue";
 import { CustomButton, Input, Card } from "@/shared/ui";
 
+// #region defineEmits
+const emit = defineEmits<{
+  (e: "submit", data: ContactForm): void;
+}>();
+// #endregion defineEmits
+
+// #region refs
 interface ContactForm {
   name: string;
   phone: string;
   message: string;
 }
-
-const emit = defineEmits<{
-  (e: "submit", data: ContactForm): void;
-}>();
 
 const form = reactive<ContactForm>({
   name: "",
@@ -18,9 +21,11 @@ const form = reactive<ContactForm>({
   message: "",
 });
 
-const isSubmitting = ref(false);
+const isSubmitting = ref<boolean>(false);
+// #endregion refs
 
-async function handleSubmit() {
+// #region Функции
+async function handleSubmit(): Promise<void> {
   isSubmitting.value = true;
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -31,6 +36,8 @@ async function handleSubmit() {
   form.phone = "";
   form.message = "";
 }
+// #endregion Функции
+defineExpose({});
 </script>
 
 <template>

@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { CustomButton } from "@/shared/ui";
 
-const isDark = ref(false);
+// #region refs
+const isDark = ref<boolean>(false);
+// #endregion refs
 
-function toggleTheme() {
-  isDark.value = !isDark.value;
-  updateTheme();
-}
-
-function updateTheme() {
-  const theme = isDark.value ? "dark" : "light";
-  document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("theme", theme);
-}
-
+// #region Хуки жизненного цикла
 onMounted(() => {
   const savedTheme = localStorage.getItem("theme");
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -25,6 +16,22 @@ onMounted(() => {
 
   updateTheme();
 });
+// #endregion Хуки жизненного цикла
+
+// #region Функции
+function toggleTheme(): void {
+  isDark.value = !isDark.value;
+  updateTheme();
+}
+
+function updateTheme(): void {
+  const theme = isDark.value ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

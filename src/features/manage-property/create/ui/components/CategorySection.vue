@@ -1,20 +1,31 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 import { Card } from "@/shared/ui";
 import { rubrics } from "../../model/options";
 import type { PropertyType } from "@/entities/property/model/types";
 
-const props = defineProps<{
-  selectedRubric: string;
-  selectedSubrubric: PropertyType;
-}>();
+// #region defineProps
+const props = defineProps({
+  selectedRubric: {
+    type: String,
+    required: true,
+  },
+  selectedSubrubric: {
+    type: String as PropType<PropertyType>,
+    required: true,
+  },
+});
+// #endregion defineProps
 
+// #region defineEmits
 const emit = defineEmits<{
   (e: "update:selectedRubric", value: string): void;
   (e: "update:selectedSubrubric", value: PropertyType): void;
 }>();
+// #endregion defineEmits
 
-const subrubrics = computed(() => {
+// #region computed
+const subrubrics = computed<{ value: string; label: string }[]>(() => {
   let prefix = "Аренда";
   if (props.selectedRubric === "sale") prefix = "Продажа";
   if (props.selectedRubric === "exchange") prefix = "Обмен";
@@ -26,6 +37,9 @@ const subrubrics = computed(() => {
     { value: "land", label: `${prefix} земельных участков` },
   ];
 });
+// #endregion computed
+
+defineExpose({});
 </script>
 
 <template>

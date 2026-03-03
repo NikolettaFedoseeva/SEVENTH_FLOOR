@@ -1,35 +1,60 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 
-interface Props {
-  text?: string;
-  variant?: "primary" | "secondary" | "outline" | "text" | "outline-white";
-  size?: "sm" | "md" | "lg";
-  disabled?: boolean;
-  block?: boolean;
-  to?: string;
-  href?: string;
-  type?: "button" | "submit" | "reset";
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  text: "",
-  variant: "primary",
-  size: "md",
-  disabled: false,
-  block: false,
-  type: "button",
+// #region defineProps
+const props = defineProps({
+  text: {
+    type: String,
+    default: "",
+  },
+  variant: {
+    type: String as PropType<
+      "primary" | "secondary" | "outline" | "text" | "outline-white"
+    >,
+    default: "primary",
+  },
+  size: {
+    type: String as PropType<"sm" | "md" | "lg">,
+    default: "md",
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  block: {
+    type: Boolean,
+    default: false,
+  },
+  to: {
+    type: String,
+    default: undefined,
+  },
+  href: {
+    type: String,
+    default: undefined,
+  },
+  type: {
+    type: String as PropType<"button" | "submit" | "reset">,
+    default: "button",
+  },
 });
+// #endregion defineProps
 
+// #region defineEmits
 const emit = defineEmits<{
   (e: "click", event: MouseEvent): void;
 }>();
+// #endregion defineEmits
 
-const componentTag = computed(() => {
+// #region computed
+const componentTag = computed<string>(() => {
   if (props.to) return "router-link";
   if (props.href) return "a";
   return "button";
 });
+// #endregion computed
+
+defineExpose({});
 </script>
 
 <template>

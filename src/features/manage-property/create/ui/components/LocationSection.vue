@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type PropType } from "vue";
 import { Card, Input, Dropdown } from "@/shared/ui";
 
 const regionOptions = [{ value: "ПМР", label: "ПМР" }];
@@ -21,12 +22,28 @@ const cityOptions = [
   { value: "Ternovka", label: "Терновка" },
 ];
 
-const props = defineProps<{
-  form: any;
-  errors: any;
-  selectedRubric: string;
-  selectedSubrubric: string;
-}>();
+// #region defineProps
+const props = defineProps({
+  form: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+  errors: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+  selectedRubric: {
+    type: String,
+    required: true,
+  },
+  selectedSubrubric: {
+    type: String,
+    required: true,
+  },
+});
+// #endregion defineProps
+
+defineExpose({});
 </script>
 
 <template>

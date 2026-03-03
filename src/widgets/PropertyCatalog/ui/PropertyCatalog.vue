@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { reactive, computed } from "vue";
+import { reactive, computed, ref } from "vue";
 import { FilterPanel, type FilterState } from "@/features/property-search";
 import { PropertyCard } from "@/entities/property";
 import { usePropertiesStore } from "@/entities/property"; // Import store
-import { Container, Input } from "@/shared/ui";
+import { Container, CustomButton } from "@/shared/ui";
 import { storeToRefs } from "pinia";
 import type { Property } from "@/entities/property/model/types";
 
+// #region refs
 // Initial filter state matching FilterPanel
 const filters = reactive<FilterState>({
   search: "",
@@ -32,8 +33,10 @@ const filters = reactive<FilterState>({
 
 const store = usePropertiesStore();
 const { properties } = storeToRefs(store);
+// #endregion refs
 
-const filteredProperties = computed(() => {
+// #region computed
+const filteredProperties = computed<Property[]>(() => {
   return properties.value.filter((property: Property) => {
     // 0. Exclude Soft Deleted
     if (property.isRemove) return false;
@@ -168,14 +171,26 @@ const filteredProperties = computed(() => {
     return true;
   });
 });
+// #endregion computed
 
-function handleSearch(newFilters: FilterState) {
+// #region Функции
+const searchInput = ref("");
+const isFilterOpen = ref<boolean>(false);
+
+function applyMainSearch(): void {
+  filters.search = searchInput.value;
+}
+
+function handleSearch(newFilters: FilterState): void {
   // Deep merge or replace
   // filters is reactive, we can't just replace the object, need to update properties
   const currentSearch = filters.search;
   Object.assign(filters, newFilters);
   filters.search = currentSearch;
 }
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>
@@ -186,16 +201,79 @@ function handleSearch(newFilters: FilterState) {
       </div>
 
       <div class="property-catalog__search">
-        <Input
-          v-model="filters.search"
-          placeholder="Поиск по названию или адресу..."
-          size="lg"
-        />
+        <div class="search-input-group">
+          <svg
+            class="search-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21 21L15.0001 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
+              stroke="#9ca3af"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            v-model="searchInput"
+            @keyup.enter="applyMainSearch"
+            placeholder="Поиск по названию или адресу..."
+          />
+          <button class="search-button" @click="applyMainSearch">Найти</button>
+        </div>
+      </div>
+
+      <!-- Mobile Filter Toggle -->
+      <div class="mobile-filter-toggle">
+        <CustomButton
+          block
+          variant="outline"
+          @click="isFilterOpen = !isFilterOpen"
+        >
+          <svg
+            v-if="!isFilterOpen"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="toggle-icon"
+          >
+            <polygon
+              points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+            ></polygon>
+          </svg>
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="toggle-icon"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          {{ isFilterOpen ? "Скрыть фильтры" : "Фильтры" }}
+        </CustomButton>
       </div>
 
       <div class="catalog-layout">
         <!-- Sidebar -->
-        <aside class="catalog-sidebar">
+        <aside class="catalog-sidebar" :class="{ 'is-open': isFilterOpen }">
           <FilterPanel @search="handleSearch" />
         </aside>
 
@@ -247,6 +325,69 @@ function handleSearch(newFilters: FilterState) {
   &__search {
     margin-bottom: 2rem;
     width: 100%;
+
+    .search-input-group {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d1d5db);
+      border-radius: 12px;
+      padding: 0.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+
+      &:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+      }
+    }
+
+    .search-icon {
+      width: 24px;
+      height: 24px;
+      margin-left: 1rem;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 1.125rem;
+      color: var(--text-primary, #111827);
+      background: transparent;
+      padding: 0.75rem 0;
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+    }
+
+    .search-button {
+      background-color: #2b2b2b;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &:hover {
+        background-color: #3b82f6;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      &:active {
+        transform: translateY(1px);
+        box-shadow: none;
+      }
+    }
   }
 
   &__subtitle {
@@ -280,11 +421,44 @@ function handleSearch(newFilters: FilterState) {
   }
 }
 
+/* Mobile Toggle Layout */
+.mobile-filter-toggle {
+  display: block;
+  margin-bottom: 1.5rem;
+
+  .toggle-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
 /* Layout */
 .catalog-layout {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+
+  .catalog-sidebar {
+    width: 100%;
+    /* Animation base */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease,
+      margin-bottom 0.3s ease;
+    margin-bottom: 0;
+
+    &.is-open {
+      max-height: 2500px; /* Arbitrary large height to fit content */
+      opacity: 1;
+      margin-bottom: 2rem;
+    }
+  }
 
   @media (min-width: 1024px) {
     flex-direction: row;
@@ -294,6 +468,11 @@ function handleSearch(newFilters: FilterState) {
       width: 300px; /* Fixed width sidebar */
       flex-shrink: 0;
       margin-right: 2rem;
+      /* Reset animation properties for desktop */
+      max-height: none !important;
+      opacity: 1 !important;
+      overflow: visible !important;
+      margin-bottom: 0;
     }
 
     .catalog-main {

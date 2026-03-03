@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 import { Card } from "@/shared/ui";
 import {
   amenitiesList,
@@ -7,18 +7,33 @@ import {
   nearHouseList,
 } from "../../model/options";
 
-const props = defineProps<{
-  form: any;
-  selectedRubric: string;
-  selectedSubrubric: string;
-}>();
+// #region defineProps
+const props = defineProps({
+  form: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+  selectedRubric: {
+    type: String,
+    required: true,
+  },
+  selectedSubrubric: {
+    type: String,
+    required: true,
+  },
+});
+// #endregion defineProps
 
-const currentAmenitiesList = computed(() => {
+// #region computed
+const currentAmenitiesList = computed<any[]>(() => {
   if (props.selectedSubrubric === "house") {
     return houseAmenitiesList;
   }
   return amenitiesList;
 });
+// #endregion computed
+
+defineExpose({});
 </script>
 
 <template>

@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { CreatePropertyForm } from "@/features/manage-property/create";
+
+
+
+
+
+
+
+
+defineExpose({});
 </script>
 
 <template>

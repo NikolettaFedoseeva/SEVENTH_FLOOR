@@ -4,75 +4,80 @@ import { usePropertiesStore } from "@/entities/property";
 import { Container, CustomButton } from "@/shared/ui";
 import { storeToRefs } from "pinia";
 
+// #region refs
 const store = usePropertiesStore();
 const { properties: allProperties } = storeToRefs(store);
+const scrollContainer = ref<HTMLElement | null>(null);
 
+let intervalId: number | null = null;
+let animationFrameId: number | null = null;
+// #endregion refs
+
+// #region computed
 // Duplicate properties to create infinite effect
 const properties = computed(() => {
   const props = allProperties.value.slice(0, 10);
   return [...props, ...props, ...props]; // Triple the items for safety
 });
+// #endregion computed
 
-const scrollContainer = ref<HTMLElement | null>(null);
-
-// Auto-scroll logic
-let intervalId: number | null = null;
-let animationFrameId: number | null = null;
-
-const startAutoScroll = () => {
-    stopAutoScroll();
-    // Continuous smooth scrolling
-    const scroll = () => {
-        if (scrollContainer.value) {
-            scrollContainer.value.scrollLeft += 1;
-            checkScroll();
-        }
-        animationFrameId = requestAnimationFrame(scroll);
-    };
+// #region Функции
+const startAutoScroll = (): void => {
+  stopAutoScroll();
+  // Continuous smooth scrolling
+  const scroll = (): void => {
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollLeft += 1;
+      checkScroll();
+    }
     animationFrameId = requestAnimationFrame(scroll);
+  };
+  animationFrameId = requestAnimationFrame(scroll);
 };
 
-const stopAutoScroll = () => {
+const stopAutoScroll = (): void => {
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
 };
 
-const checkScroll = () => {
-    if (!scrollContainer.value) return;
-    const container = scrollContainer.value;
-    
-    // If we've scrolled past the first set of items (1/3 of total width), reset to 0
-    // Actually, reset to the start of the second set to avoid jump
-    const oneSetWidth = container.scrollWidth / 3;
-    
-    if (container.scrollLeft >= oneSetWidth * 2) {
-        container.scrollLeft = oneSetWidth;
-    } else if (container.scrollLeft <= 0) {
-         container.scrollLeft = oneSetWidth;
-    }
+const checkScroll = (): void => {
+  if (!scrollContainer.value) return;
+  const container = scrollContainer.value;
+
+  // If we've scrolled past the first set of items (1/3 of total width), reset to 0
+  // Actually, reset to the start of the second set to avoid jump
+  const oneSetWidth = container.scrollWidth / 3;
+
+  if (container.scrollLeft >= oneSetWidth * 2) {
+    container.scrollLeft = oneSetWidth;
+  } else if (container.scrollLeft <= 0) {
+    container.scrollLeft = oneSetWidth;
+  }
 };
+// #endregion Функции
 
-
-
-
+// #region Хуки жизненного цикла
 onMounted(() => {
   // Set initial scroll position to the middle set
   if (scrollContainer.value) {
-      setTimeout(() => {
-          if (scrollContainer.value) {
-            const oneSetWidth = scrollContainer.value.scrollWidth / 3;
-            scrollContainer.value.scrollLeft = oneSetWidth;
-             startAutoScroll();
-          }
-      }, 500); // Wait for render
+    setTimeout(() => {
+      if (scrollContainer.value) {
+        const oneSetWidth = scrollContainer.value.scrollWidth / 3;
+        scrollContainer.value.scrollLeft = oneSetWidth;
+        startAutoScroll();
+      }
+    }, 500); // Wait for render
   }
 });
 
 onUnmounted(() => {
   stopAutoScroll();
 });
+// #endregion Хуки жизненного цикла
+
+defineExpose({});
 </script>
 
 <template>
@@ -80,7 +85,6 @@ onUnmounted(() => {
     <Container>
       <div class="property-carousel__header">
         <h2 class="property-carousel__title">Популярные направления</h2>
-
       </div>
 
       <div
@@ -141,8 +145,6 @@ onUnmounted(() => {
   color: var(--text-primary);
   margin: 0;
 }
-
-
 
 .carousel-track {
   display: flex;

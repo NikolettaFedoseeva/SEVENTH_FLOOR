@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { LoginForm } from "@/features/auth/login";
 import { Container } from "@/shared/ui";
+
+
+
+
+
+
+
+
+defineExpose({});
 </script>
 
 <template>

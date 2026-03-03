@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type PropType } from "vue";
 import { Card, Dropdown } from "@/shared/ui";
 import {
   propertyCategories,
@@ -29,11 +30,24 @@ import HouseRentCharacteristics from "./Characteristics/HouseRentCharacteristics
 import ApartmentSaleCharacteristics from "./Characteristics/ApartmentSaleCharacteristics.vue";
 import ApartmentRentCharacteristics from "./Characteristics/ApartmentRentCharacteristics.vue";
 
-const props = defineProps<{
-  form: any;
-  selectedRubric: string;
-  selectedSubrubric: string;
-}>();
+// #region defineProps
+const props = defineProps({
+  form: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+  selectedRubric: {
+    type: String,
+    required: true,
+  },
+  selectedSubrubric: {
+    type: String,
+    required: true,
+  },
+});
+// #endregion defineProps
+
+defineExpose({});
 </script>
 
 <template>

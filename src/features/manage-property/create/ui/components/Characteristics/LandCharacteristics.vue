@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import { type PropType } from "vue";
 import { Input, Dropdown } from "@/shared/ui";
 
-const props = defineProps<{
-  form: any;
-  landStructures: any[];
-  landPurpose: any[];
-}>();
+// #region defineProps
+const props = defineProps({
+  form: { type: Object as PropType<any>, required: true },
+  landStructures: { type: Array as PropType<any[]>, required: true },
+  landPurpose: { type: Array as PropType<any[]>, required: true },
+});
+// #endregion defineProps
+
+defineExpose({});
 </script>
 
 <template>

@@ -1,20 +1,25 @@
 <script setup lang="ts">
+import { type PropType } from "vue";
 import { Input, Dropdown } from "@/shared/ui";
 
-const props = defineProps<{
-  form: any;
-  roomsCountList: any[];
-  roomTypesList: any[];
-  buildingTypes: any[];
-  constructionTypes: any[];
-  positionInBuilding: any[];
-  apartmentSeries: any[];
-  bathroomTypes: any[];
-  balconyTypes: any[];
-  parkingTypes: any[];
-  conditionTypes: any[];
-  heatingTypes: any[];
-}>();
+// #region defineProps
+const props = defineProps({
+  form: { type: Object as PropType<any>, required: true },
+  roomsCountList: { type: Array as PropType<any[]>, required: true },
+  roomTypesList: { type: Array as PropType<any[]>, required: true },
+  buildingTypes: { type: Array as PropType<any[]>, required: true },
+  constructionTypes: { type: Array as PropType<any[]>, required: true },
+  positionInBuilding: { type: Array as PropType<any[]>, required: true },
+  apartmentSeries: { type: Array as PropType<any[]>, required: true },
+  bathroomTypes: { type: Array as PropType<any[]>, required: true },
+  balconyTypes: { type: Array as PropType<any[]>, required: true },
+  parkingTypes: { type: Array as PropType<any[]>, required: true },
+  conditionTypes: { type: Array as PropType<any[]>, required: true },
+  heatingTypes: { type: Array as PropType<any[]>, required: true },
+});
+// #endregion defineProps
+
+defineExpose({});
 </script>
 
 <template>

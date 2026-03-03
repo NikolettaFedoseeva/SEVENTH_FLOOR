@@ -1,35 +1,59 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 
-interface Props {
-  modelValue?: string | number;
-  label?: string;
-  type?: "text" | "number" | "email" | "password" | "tel" | "textarea";
-  placeholder?: string;
-  disabled?: boolean;
-  error?: string;
-  id?: string;
-  maxlength?: string | number;
-  rows?: string | number;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  modelValue: "",
-  label: "",
-  type: "text",
-  placeholder: "",
-  disabled: false,
-  error: "",
-  id: () => `input-${Math.random().toString(36).substr(2, 9)}`,
+// #region defineProps
+const props = defineProps({
+  modelValue: {
+    type: [String, Number] as PropType<string | number>,
+    default: "",
+  },
+  label: {
+    type: String,
+    default: "",
+  },
+  type: {
+    type: String as PropType<
+      "text" | "number" | "email" | "password" | "tel" | "textarea"
+    >,
+    default: "text",
+  },
+  placeholder: {
+    type: String,
+    default: "",
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  error: {
+    type: String,
+    default: "",
+  },
+  id: {
+    type: String,
+    default: () => `input-${Math.random().toString(36).substr(2, 9)}`,
+  },
+  maxlength: {
+    type: [String, Number] as PropType<string | number>,
+    default: undefined,
+  },
+  rows: {
+    type: [String, Number] as PropType<string | number>,
+    default: undefined,
+  },
 });
+// #endregion defineProps
 
+// #region defineEmits
 const emit = defineEmits<{
   (e: "update:modelValue", value: string | number): void;
   (e: "blur", event: FocusEvent): void;
   (e: "focus", event: FocusEvent): void;
 }>();
+// #endregion defineEmits
 
-const value = computed({
+// #region computed
+const value = computed<string | number>({
   get() {
     return props.modelValue;
   },
@@ -38,7 +62,13 @@ const value = computed({
   },
 });
 
-const handleInput = (event: Event) => {
+const inputType = computed<string>(() => {
+  return props.type === "number" ? "text" : props.type;
+});
+// #endregion computed
+
+// #region Функции
+const handleInput = (event: Event): void => {
   const target = event.target as HTMLInputElement;
   if (props.type === "number") {
     // Remove all non-digit characters
@@ -49,10 +79,9 @@ const handleInput = (event: Event) => {
     value.value = target.value;
   }
 };
+// #endregion Функции
 
-const inputType = computed(() => {
-  return props.type === "number" ? "text" : props.type;
-});
+defineExpose({});
 </script>
 
 <template>

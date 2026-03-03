@@ -2,7 +2,11 @@
 import { useLogin } from "../model/useLogin";
 import { Button, Input, Card } from "@/shared/ui";
 
+// #region Функции
 const { email, password, isLoading, error, handleLogin } = useLogin();
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

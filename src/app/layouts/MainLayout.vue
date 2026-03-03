@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { TheHeader, TheFooter } from "@/widgets";
+
+
+
+
+
+
+
+
+defineExpose({});
 </script>
 
 <template>

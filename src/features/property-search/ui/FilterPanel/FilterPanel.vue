@@ -3,10 +3,13 @@ import { reactive, watch } from "vue";
 import { CustomButton, Input, Card } from "@/shared/ui";
 import type { FilterState, LocationNode } from "./types";
 
+// #region defineEmits
 const emit = defineEmits<{
   (e: "search", filters: FilterState): void;
 }>();
+// #endregion defineEmits
 
+// #region refs
 const locationTree = reactive<LocationNode[]>([
   {
     label: "Приднестровье",
@@ -63,7 +66,6 @@ const filters = reactive<FilterState>({
   search: "",
   locations: [],
   // "region", "cities" replaced by generic locations array for key based filtering
-
   adTypes: [],
   withPhotos: false,
   verified: false,
@@ -81,12 +83,15 @@ const filters = reactive<FilterState>({
   maxPrice: "",
   currency: "usd",
 });
+// #endregion refs
 
-function handleSearch() {
-  emit("search", { ...filters });
+// #region Функции
+function handleSearch(): void {
+  // Deep clone to prevent reactivity leakage to PropertyCatalog
+  emit("search", JSON.parse(JSON.stringify(filters)));
 }
 
-function resetFilters() {
+function resetFilters(): void {
   Object.assign(filters, {
     search: "",
     locations: [],
@@ -111,7 +116,7 @@ function resetFilters() {
 }
 
 // --- Tree Logic ---
-function toggleNode(node: LocationNode) {
+function toggleNode(node: LocationNode): void {
   if (node.children) {
     node.isOpen = !node.isOpen;
   }
@@ -121,7 +126,7 @@ function toggleNode(node: LocationNode) {
 // 1. If checking a City, check all its Districts.
 // 2. If checking a District, add it. If all districts Checked, check City? (Optional UI polish)
 // Simple version: just array of strings.
-function toggleLocation(val: string, children?: LocationNode[]) {
+function toggleLocation(val: string, children?: LocationNode[]): void {
   const idx = filters.locations.indexOf(val);
   const isChecked = idx !== -1;
 
@@ -161,7 +166,7 @@ function isLocationSelected(val: string): boolean {
 // skipping complex visual logic for now, utilizing standard checkboxes.
 
 // Helper to toggle array items
-function toggleArrayItem(arr: string[], item: string) {
+function toggleArrayItem(arr: string[], item: string): void {
   const index = arr.indexOf(item);
   if (index === -1) {
     arr.push(item);
@@ -171,7 +176,7 @@ function toggleArrayItem(arr: string[], item: string) {
 }
 
 // Handle "New" building type toggle
-function toggleNewBuildingType(e: Event) {
+function toggleNewBuildingType(e: Event): void {
   const isChecked = (e.target as HTMLInputElement).checked;
   if (isChecked) {
     if (!filters.buildingType.includes("new")) {
@@ -184,7 +189,7 @@ function toggleNewBuildingType(e: Event) {
   }
 }
 
-function toggleBuildingStatus(status: string) {
+function toggleBuildingStatus(status: string): void {
   toggleArrayItem(filters.buildingStatus, status);
   if (
     filters.buildingStatus.length > 0 &&
@@ -193,6 +198,9 @@ function toggleBuildingStatus(status: string) {
     filters.buildingType.push("new");
   }
 }
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

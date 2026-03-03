@@ -1,24 +1,43 @@
 <script setup lang="ts">
-interface Props {
-  variant?: "primary" | "secondary" | "outline" | "text" | "danger";
-  size?: "sm" | "md" | "lg";
-  disabled?: boolean;
-  block?: boolean;
-  to?: string;
-  type?: "button" | "submit" | "reset";
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  variant: "primary",
-  size: "md",
-  disabled: false,
-  block: false,
-  type: "button",
+import { type PropType } from "vue";
+// #region defineProps
+const props = defineProps({
+  variant: {
+    type: String as PropType<
+      "primary" | "secondary" | "outline" | "text" | "danger"
+    >,
+    default: "primary",
+  },
+  size: {
+    type: String as PropType<"sm" | "md" | "lg">,
+    default: "md",
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  block: {
+    type: Boolean,
+    default: false,
+  },
+  to: {
+    type: String,
+    default: undefined,
+  },
+  type: {
+    type: String as PropType<"button" | "submit" | "reset">,
+    default: "button",
+  },
 });
+// #endregion defineProps
 
+// #region defineEmits
 const emit = defineEmits<{
   (e: "click", event: MouseEvent): void;
 }>();
+// #endregion defineEmits
+
+defineExpose({});
 </script>
 
 <template>

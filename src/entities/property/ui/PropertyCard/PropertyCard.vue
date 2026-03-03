@@ -1,20 +1,24 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 import { Card } from "@/shared/ui";
 import { formatMoney } from "@/shared/lib/formatMoney";
 import type { Property } from "../../model/types";
 
-interface Props {
-  property: Property;
-}
+// #region defineProps
+const props = defineProps({
+  property: {
+    type: Object as PropType<Property>,
+    required: true,
+  },
+});
+// #endregion defineProps
 
-const props = defineProps<Props>();
-
-const formattedPrice = computed(() =>
+// #region computed
+const formattedPrice = computed<string>(() =>
   formatMoney(props.property.price, props.property.currency || "usd"),
 );
 
-const heatingLabel = computed(() => {
+const heatingLabel = computed<string>(() => {
   const map: Record<string, string> = {
     central: "Центральное",
     autonomous: "Автономное",
@@ -23,6 +27,9 @@ const heatingLabel = computed(() => {
   };
   return props.property.heating ? map[props.property.heating] : "";
 });
+// #endregion computed
+
+defineExpose({});
 </script>
 
 <template>
@@ -34,9 +41,9 @@ const heatingLabel = computed(() => {
           :alt="property.title"
           class="property-card__image"
         />
-        <div v-if="property.verified" class="property-card__badge">
+        <!-- <div v-if="property.verified" class="property-card__badge">
           <span class="verified-icon">🏅</span> Проверено
-        </div>
+        </div> -->
         <div class="property-card__price">{{ formattedPrice }}</div>
       </div>
       <div class="property-card__content">

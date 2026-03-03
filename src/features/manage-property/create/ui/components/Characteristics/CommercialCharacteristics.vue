@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { type PropType } from "vue";
 import { Input } from "@/shared/ui";
 
-const props = defineProps<{
-  form: any;
-  commercialTypeList: any[];
-}>();
+// #region defineProps
+const props = defineProps({
+  form: { type: Object as PropType<any>, required: true },
+  commercialTypeList: { type: Array as PropType<any[]>, required: true },
+});
+// #endregion defineProps
+
+defineExpose({});
 </script>
 
 <template>

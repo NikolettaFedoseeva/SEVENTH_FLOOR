@@ -2,9 +2,13 @@
 import { onMounted } from "vue";
 import { Container, CustomButton } from "@/shared/ui";
 
+// #region Хуки жизненного цикла
 onMounted(() => {
   // Animation logic if needed
 });
+// #endregion Хуки жизненного цикла
+
+defineExpose({});
 </script>
 
 <template>

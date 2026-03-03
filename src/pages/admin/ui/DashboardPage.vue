@@ -4,20 +4,25 @@ import { usePropertiesStore } from "@/entities/property";
 import { storeToRefs } from "pinia";
 import { Button, Card, Modal } from "@/shared/ui";
 
+// #region refs
 const store = usePropertiesStore();
 const { properties, loading } = storeToRefs(store);
 
-const showDeleteModal = ref(false);
+const showDeleteModal = ref<boolean>(false);
 const propertyToDelete = ref<string | number | null>(null);
 
-const showRestoreModal = ref(false);
+const showRestoreModal = ref<boolean>(false);
 const propertyToRestore = ref<string | number | null>(null);
+// #endregion refs
 
+// #region Хуки жизненного цикла
 onMounted(() => {
   store.fetchProperties(true);
 });
+// #endregion Хуки жизненного цикла
 
-const handleDelete = (id: string | number) => {
+// #region Функции
+const handleDelete = (id: string | number): void => {
   propertyToDelete.value = id;
   showDeleteModal.value = true;
 };
@@ -35,13 +40,16 @@ const handleRestore = (id: string | number) => {
   showRestoreModal.value = true;
 };
 
-const confirmRestore = async () => {
+const confirmRestore = async (): Promise<void> => {
   if (propertyToRestore.value) {
     await store.restoreProperty(propertyToRestore.value);
     showRestoreModal.value = false;
     propertyToRestore.value = null;
   }
 };
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

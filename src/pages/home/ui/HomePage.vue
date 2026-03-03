@@ -5,6 +5,10 @@ import { usePropertiesStore } from "@/entities/property/model/store";
 import { HeroSection, PropertyCarousel, AgencyInfo } from "@/widgets";
 import { useHead } from "@unhead/vue";
 
+// #region refs
+const propertiesStore = usePropertiesStore();
+// #endregion refs
+
 useHead({
   title: "Главная",
   meta: [
@@ -16,11 +20,13 @@ useHead({
   ],
 });
 
-const propertiesStore = usePropertiesStore();
-
+// #region Хуки жизненного цикла
 onMounted(() => {
   propertiesStore.fetchProperties();
 });
+// #endregion Хуки жизненного цикла
+
+defineExpose({});
 </script>
 
 <template>

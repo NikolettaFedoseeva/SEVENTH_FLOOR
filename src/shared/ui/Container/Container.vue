@@ -1,5 +1,11 @@
 <script setup lang="ts">
-// Container for centering content with max-width
+
+
+
+
+
+
+defineExpose({});
 </script>
 
 <template>

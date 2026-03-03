@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { Container } from "@/shared/ui";
+
+
+
+
+
+
+
+
+defineExpose({});
 </script>
 
 <template>

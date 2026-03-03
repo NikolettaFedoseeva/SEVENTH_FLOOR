@@ -4,22 +4,28 @@ import { useRouter } from "vue-router";
 import { Container, Button } from "@/shared/ui";
 import { ref } from "vue";
 
+// #region refs
 const session = useSessionStore();
 const router = useRouter();
-const isSidebarOpen = ref(false);
+const isSidebarOpen = ref<boolean>(false);
+// #endregion refs
 
-const toggleSidebar = () => {
+// #region Функции
+const toggleSidebar = (): void => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
 
-const closeSidebar = () => {
+const closeSidebar = (): void => {
   isSidebarOpen.value = false;
 };
 
-const handleLogout = async () => {
+const handleLogout = async (): Promise<void> => {
   await session.logout();
   router.push("/login");
 };
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

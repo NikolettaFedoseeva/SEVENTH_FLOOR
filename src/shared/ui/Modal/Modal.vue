@@ -1,34 +1,26 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
 
-interface Props {
-  modelValue: boolean;
-  title?: string;
-}
+// #region defineProps
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    required: true,
+  },
+  title: {
+    type: String,
+    default: undefined,
+  },
+});
+// #endregion defineProps
 
-const props = defineProps<Props>();
-
+// #region defineEmits
 const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
+// #endregion defineEmits
 
-const close = () => {
-  emit("update:modelValue", false);
-};
-
-const handleBackdropClick = (event: MouseEvent) => {
-  if (event.target === event.currentTarget) {
-    close();
-  }
-};
-
-// Close on Escape key
-const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Escape" && props.modelValue) {
-    close();
-  }
-};
-
+// #region Хуки жизненного цикла
 onMounted(() => {
   document.addEventListener("keydown", handleKeydown);
 });
@@ -36,12 +28,38 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeydown);
 });
+// #endregion Хуки жизненного цикла
+
+// #region Функции
+const close = (): void => {
+  emit("update:modelValue", false);
+};
+
+const handleBackdropClick = (event: MouseEvent): void => {
+  if (event.target === event.currentTarget) {
+    close();
+  }
+};
+
+// Close on Escape key
+const handleKeydown = (e: KeyboardEvent): void => {
+  if (e.key === "Escape" && props.modelValue) {
+    close();
+  }
+};
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="modelValue" class="modal-backdrop" @click="handleBackdropClick">
+      <div
+        v-if="modelValue"
+        class="modal-backdrop"
+        @click="handleBackdropClick"
+      >
         <div class="modal-container">
           <div class="modal-header">
             <h3 class="modal-title">{{ title }}</h3>
@@ -112,7 +130,7 @@ onUnmounted(() => {
   cursor: pointer;
   color: #64748b;
   padding: 0;
-    
+
   &:hover {
     color: #0f172a;
   }

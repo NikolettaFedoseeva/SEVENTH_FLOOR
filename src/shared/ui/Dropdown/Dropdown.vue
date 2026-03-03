@@ -1,30 +1,49 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 
+// #region types
 export interface DropdownOption {
   value: any;
   label: string;
   disabled?: boolean;
 }
+// #endregion types
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: string | number | null;
-    options: DropdownOption[];
-    placeholder?: string;
-    disabled?: boolean;
-  }>(),
-  {
-    placeholder: "-",
+// #region defineProps
+const props = defineProps({
+  modelValue: {
+    type: [String, Number] as PropType<string | number | null>,
+    default: null,
   },
-);
-
-const emit = defineEmits(["update:modelValue"]);
-
-const value = computed({
-  get: () => props.modelValue,
-  set: (val) => emit("update:modelValue", val),
+  options: {
+    type: Array as PropType<DropdownOption[]>,
+    required: true,
+  },
+  placeholder: {
+    type: String,
+    default: "-",
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
+// #endregion defineProps
+
+// #region defineEmits
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string | number | null): void;
+}>();
+// #endregion defineEmits
+
+// #region computed
+const value = computed<string | number | null>({
+  get: () => props.modelValue,
+  set: (val: string | number | null) => emit("update:modelValue", val),
+});
+// #endregion computed
+
+defineExpose({});
 </script>
 
 <template>

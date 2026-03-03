@@ -1,13 +1,23 @@
 <script setup lang="ts">
+import { type PropType } from "vue";
 import { Card, Input } from "@/shared/ui";
 import { currencies } from "../../model/options";
 
-const props = defineProps<{
-  form: any;
-  errors: any;
-}>();
+// #region defineProps
+const props = defineProps({
+  form: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+  errors: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+});
+// #endregion defineProps
 
-const preventInvalidNumberChars = (e: KeyboardEvent) => {
+// #region Функции
+const preventInvalidNumberChars = (e: KeyboardEvent): void => {
   // Allow control keys (Backspace, Tab, Delete, Arrows, etc)
   if (e.key.length > 1 || e.ctrlKey || e.metaKey || e.altKey) {
     return;
@@ -17,6 +27,9 @@ const preventInvalidNumberChars = (e: KeyboardEvent) => {
     e.preventDefault();
   }
 };
+// #endregion Функции
+
+defineExpose({});
 </script>
 
 <template>

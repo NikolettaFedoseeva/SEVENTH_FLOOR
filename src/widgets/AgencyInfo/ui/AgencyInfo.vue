@@ -1,23 +1,17 @@
 <script setup lang="ts">
 import { Container } from "@/shared/ui";
 
+// #region refs
 const stats = [
   {
     value: "10+",
     label: "Лет на рынке",
     description: "Безупречной репутации и опыта",
   },
-  // {
-  //   value: "2500+",
-  //   label: "Счастливых семей",
-  //   description: "Нашли свой идеальный дом с нашей помощью",
-  // },
-  // {
-  //   value: "45",
-  //   label: "Профессионалов",
-  //   description: "Агентов, юристов и ипотечных брокеров в штате",
-  // },
 ];
+// #endregion refs
+
+defineExpose({});
 </script>
 
 <template>
@@ -186,7 +180,9 @@ const stats = [
 
   .agency-info__image-wrapper {
     order: -1;
-    max-width: 600px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
   }
 
   .image-decoration {

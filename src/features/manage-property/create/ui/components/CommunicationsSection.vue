@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type PropType } from "vue";
 import { Card, Dropdown } from "@/shared/ui";
 import {
   heatingSourcesList,
@@ -8,16 +8,31 @@ import {
   gasTypes,
 } from "../../model/options";
 
-const props = defineProps<{
-  form: any;
-  selectedRubric: string;
-  selectedSubrubric: string;
-}>();
+// #region defineProps
+const props = defineProps({
+  form: {
+    type: Object as PropType<any>,
+    required: true,
+  },
+  selectedRubric: {
+    type: String,
+    required: true,
+  },
+  selectedSubrubric: {
+    type: String,
+    required: true,
+  },
+});
+// #endregion defineProps
 
-const showCommunications = computed(() =>
+// #region computed
+const showCommunications = computed<boolean>(() =>
   ["house", "land"].includes(props.selectedSubrubric),
 );
-const isLand = computed(() => props.selectedSubrubric === "land");
+const isLand = computed<boolean>(() => props.selectedSubrubric === "land");
+// #endregion computed
+
+defineExpose({});
 </script>
 
 <template>

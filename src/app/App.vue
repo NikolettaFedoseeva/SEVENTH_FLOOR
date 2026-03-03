@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useHead } from "@unhead/vue";
 
+// #region Хуки жизненного цикла
 useHead({
   titleTemplate: "%s | 7 Этаж",
   meta: [
@@ -11,6 +12,9 @@ useHead({
     },
   ],
 });
+// #endregion Хуки жизненного цикла
+
+defineExpose({});
 </script>
 
 <template>

@@ -1,13 +1,18 @@
 <script setup lang="ts">
-interface Props {
-  padding?: boolean;
-  hoverable?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  padding: true,
-  hoverable: false,
+// #region defineProps
+const props = defineProps({
+  padding: {
+    type: Boolean,
+    default: true,
+  },
+  hoverable: {
+    type: Boolean,
+    default: false,
+  },
 });
+// #endregion defineProps
+
+defineExpose({});
 </script>
 
 <template>

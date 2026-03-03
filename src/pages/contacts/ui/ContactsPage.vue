@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { ContactForm } from "@/features/contact-agent";
 import { Container } from "@/shared/ui";
+
+
+
+
+
+
+
+
+defineExpose({});
 </script>
 
 <template>

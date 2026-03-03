@@ -6,6 +6,10 @@ import { useHead } from "@unhead/vue";
 import { usePropertiesStore } from "@/entities/property/model/store";
 import { PropertyCatalog } from "@/widgets";
 
+// #region refs
+const propertiesStore = usePropertiesStore();
+// #endregion refs
+
 useHead({
   title: "Каталог недвижимости",
   meta: [
@@ -17,11 +21,13 @@ useHead({
   ],
 });
 
-const propertiesStore = usePropertiesStore();
-
+// #region Хуки жизненного цикла
 onMounted(() => {
   propertiesStore.fetchProperties();
 });
+// #endregion Хуки жизненного цикла
+
+defineExpose({});
 </script>
 
 <template>

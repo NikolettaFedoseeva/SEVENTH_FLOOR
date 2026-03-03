@@ -21,16 +21,32 @@ import AmenitiesSection from "./components/AmenitiesSection.vue";
 import GeneralInfoSection from "./components/GeneralInfoSection.vue";
 import MediaSection from "./components/MediaSection.vue";
 
-const props = defineProps<{
-  propertyId?: string;
-}>();
+// #region defineProps
+const props = defineProps({
+  propertyId: {
+    type: String,
+    default: undefined,
+  },
+});
+// #endregion defineProps
 
+// #region refs
 const { form, errors, isLoading, success, createProperty, isEdit } =
   useCreateProperty(props.propertyId);
 
 const selectedRubric = ref<string>("sale");
 const selectedSubrubric = ref<PropertyType>("apartment");
+// #endregion refs
 
+// #region computed
+// --- Conditional Field Visibility ---
+// Need this one for Communications block here
+const showCommunications = computed<boolean>(() =>
+  ["house"].includes(form.type as string),
+);
+// #endregion computed
+
+// #region watch
 // Update form model when selection changes
 watch(
   [selectedRubric, selectedSubrubric],
@@ -49,10 +65,9 @@ watch(
   },
   { immediate: true },
 );
+// #endregion watch
 
-// --- Conditional Field Visibility ---
-// Need this one for Communications block here
-const showCommunications = computed(() => ["house"].includes(form.type));
+defineExpose({});
 </script>
 
 <template>
