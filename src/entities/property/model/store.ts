@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Property } from "./types";
-import { supabase } from "@/shared/api/supabase";
+import { apiClient } from "@/shared/api";
 import { Apartment, House, Commercial, Land } from "./property.entity";
 
 // Helper to map DB snake_case to Entity camelCase
@@ -86,100 +86,65 @@ export const usePropertiesStore = defineStore("properties", () => {
     loading.value = true;
     error.value = null;
     try {
-      let query = supabase
-        .from("properties")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!includeRemoved) {
-        query = query.or("is_remove.eq.false,is_remove.is.null");
-      }
-
-      const { data, error: err } = await query;
-
-      if (err) throw err;
-
-      if (data) {
-        properties.value = data.map(mapDbToEntity);
-      }
+      const response = await apiClient.get('/properties', {
+        params: { includeRemoved }
+      });
+      properties.value = response.data.map(mapDbToEntity);
     } catch (err: any) {
       console.error("Error fetching properties:", err);
-      error.value = err.message;
+      error.value = err.response?.data?.error || err.message;
     } finally {
       loading.value = false;
     }
   };
 
-  const addProperty = async (property: Omit<Property, "id">) => {
+  const addProperty = async (property: any, files: { image_url?: File, images?: File[], video?: File, main_image_index?: number } = {}) => {
     loading.value = true;
     error.value = null;
     try {
-      // Map camelCase to snake_case for DB
-      const dbData = {
-        title: property.title,
-        address: property.address,
-        district: property.district,
-        price: property.price,
-        image_url: property.imageUrl,
-        area: property.area,
-        rooms: property.rooms,
-        type: property.type,
-        description: property.description,
-        rent_period: property.rentPeriod,
-        floor: property.floor,
-        total_floors: property.totalFloors,
-        heating: property.heating,
-        building_type: property.buildingType,
-        building_status: property.buildingStatus,
-        parking: property.parking,
-        source: property.source,
-        verified: property.verified,
-        currency: property.currency,
-        images: property.images,
-        video_url: property.videoUrl,
-        city: property.city,
-        house_number: property.houseNumber,
-        living_area: property.livingArea,
-        kitchen_area: property.kitchenArea,
-        ceiling_height: property.ceilingHeight,
-        layout: property.layout,
-        bathroom: property.bathroom,
-        balcony: property.balcony,
-        condition: property.condition,
-        amenities: property.amenities,
-        // Apartment
-        wall_material: (property as any).wallMaterial,
-        position_in_building: (property as any).positionInBuilding,
-        apartment_series: (property as any).apartmentSeries,
-        // House
-        land_area: (property as any).landArea,
-        sewerage: (property as any).sewerage,
-        gas: (property as any).gas,
-        water: (property as any).water,
-        electricity: (property as any).electricity,
-        heating_sources: (property as any).heatingSources,
-        has_buildings: (property as any).hasBuildings,
-        // Commercial
-        commercial_types: (property as any).commercialTypes,
-        // Land
-        land_type: (property as any).landType,
-        road_type: (property as any).roadType,
-      };
+      const formData = new FormData();
+      
+      // Append fields
+      Object.keys(property).forEach(key => {
+        let val = property[key];
+        if (val === undefined || val === null) return;
+        
+        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+        
+        if (typeof val === 'string' && val.startsWith('blob:')) return;
+        
+        if (Array.isArray(val)) {
+          const filtered = val.filter(item => typeof item !== 'string' || !item.startsWith('blob:'));
+          formData.append(snakeKey, JSON.stringify(filtered));
+        } else if (typeof val === 'object') {
+          formData.append(snakeKey, JSON.stringify(val));
+        } else {
+          formData.append(snakeKey, val);
+        }
+      });
 
-      const { data, error: err } = await supabase
-        .from("properties")
-        .insert(dbData)
-        .select()
-        .single();
+      // Append files
+      if (files.main_image_index !== undefined) {
+        formData.append('main_image_index', files.main_image_index.toString());
+      } else if (files.image_url) {
+        formData.append('image_url', files.image_url);
+      }
 
-      if (err) throw err;
+      if (files.images) {
+        files.images.forEach(f => formData.append('images', f));
+      }
+      if (files.video) formData.append('video', files.video);
 
-      if (data) {
-        properties.value.unshift(mapDbToEntity(data));
+      const response = await apiClient.post('/properties', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (response.data) {
+        properties.value.unshift(mapDbToEntity(response.data));
       }
     } catch (err: any) {
       console.error("Error adding property:", err);
-      error.value = err.message;
+      error.value = err.response?.data?.error || err.message;
     } finally {
       loading.value = false;
     }
@@ -189,30 +154,17 @@ export const usePropertiesStore = defineStore("properties", () => {
     loading.value = true;
     error.value = null;
     try {
-      const { data, error: err } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (err) throw err;
-
-      if (data) {
-        const entity = mapDbToEntity(data);
-        // Update or add to local state
-        const index = properties.value.findIndex(
-          (p) => String(p.id) === String(id),
-        );
-        if (index !== -1) {
-          properties.value[index] = entity;
-        } else {
-          properties.value.push(entity);
-        }
+      const response = await apiClient.get(`/properties/${id}`);
+      
+      if (response.data) {
+        const entity = mapDbToEntity(response.data);
+        properties.value = properties.value.filter(p => String(p.id) !== String(id));
+        properties.value.push(entity);
         return entity;
       }
     } catch (err: any) {
       console.error("Error fetching property by id:", err);
-      error.value = err.message;
+      error.value = err.response?.data?.error || err.message;
     } finally {
       loading.value = false;
     }
@@ -220,102 +172,51 @@ export const usePropertiesStore = defineStore("properties", () => {
 
   const updateProperty = async (
     id: string | number,
-    property: Partial<Omit<Property, "id">>,
+    property: any,
+    files: { image_url?: File, images?: File[], video?: File, main_image_index?: number } = {}
   ) => {
     loading.value = true;
     error.value = null;
     try {
-      // Map camelCase to snake_case for DB
-      const dbData: any = {};
-      if (property.title !== undefined) dbData.title = property.title;
-      if (property.address !== undefined) dbData.address = property.address;
-      if (property.district !== undefined) dbData.district = property.district;
-      if (property.price !== undefined) dbData.price = property.price;
-      if (property.imageUrl !== undefined) dbData.image_url = property.imageUrl;
-      if (property.area !== undefined) dbData.area = property.area;
-      if (property.rooms !== undefined) dbData.rooms = property.rooms;
-      if (property.type !== undefined) dbData.type = property.type;
-      if (property.description !== undefined)
-        dbData.description = property.description;
-      if (property.rentPeriod !== undefined)
-        dbData.rent_period = property.rentPeriod;
-      if (property.floor !== undefined) dbData.floor = property.floor;
-      if (property.totalFloors !== undefined)
-        dbData.total_floors = property.totalFloors;
-      if (property.heating !== undefined) dbData.heating = property.heating;
-      if (property.buildingType !== undefined)
-        dbData.building_type = property.buildingType;
-      if (property.buildingStatus !== undefined)
-        dbData.building_status = property.buildingStatus;
-      if (property.parking !== undefined) dbData.parking = property.parking;
-      if (property.source !== undefined) dbData.source = property.source;
-      if (property.verified !== undefined) dbData.verified = property.verified;
-      if (property.currency !== undefined) dbData.currency = property.currency;
-      if (property.images !== undefined) dbData.images = property.images;
-      if (property.videoUrl !== undefined) dbData.video_url = property.videoUrl;
-      if (property.city !== undefined) dbData.city = property.city;
-      if (property.houseNumber !== undefined)
-        dbData.house_number = property.houseNumber;
-      if (property.livingArea !== undefined)
-        dbData.living_area = property.livingArea;
-      if (property.kitchenArea !== undefined)
-        dbData.kitchen_area = property.kitchenArea;
-      if (property.ceilingHeight !== undefined)
-        dbData.ceiling_height = property.ceilingHeight;
-      if (property.layout !== undefined) dbData.layout = property.layout;
-      if (property.bathroom !== undefined) dbData.bathroom = property.bathroom;
-      if (property.balcony !== undefined) dbData.balcony = property.balcony;
-      if (property.condition !== undefined)
-        dbData.condition = property.condition;
-      if (property.amenities !== undefined)
-        dbData.amenities = property.amenities;
-      // if (property.isRemove !== undefined) dbData.is_remove = property.isRemove;
+      const formData = new FormData();
+      
+      // Append fields
+      Object.keys(property).forEach(key => {
+        let val = property[key];
+        if (val === undefined || val === null) return;
+        
+        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+        
+        if (typeof val === 'string' && val.startsWith('blob:')) return;
+        
+        if (Array.isArray(val)) {
+          const filtered = val.filter(item => typeof item !== 'string' || !item.startsWith('blob:'));
+          formData.append(snakeKey, JSON.stringify(filtered));
+        } else if (typeof val === 'object') {
+          formData.append(snakeKey, JSON.stringify(val));
+        } else {
+          formData.append(snakeKey, val);
+        }
+      });
 
-      // Apartment
-      if ((property as any).wallMaterial !== undefined)
-        dbData.wall_material = (property as any).wallMaterial;
-      if ((property as any).positionInBuilding !== undefined)
-        dbData.position_in_building = (property as any).positionInBuilding;
-      if ((property as any).apartmentSeries !== undefined)
-        dbData.apartment_series = (property as any).apartmentSeries;
+      // Append files
+      if (files.main_image_index !== undefined) {
+        formData.append('main_image_index', files.main_image_index.toString());
+      } else if (files.image_url) {
+        formData.append('image_url', files.image_url);
+      }
 
-      // House
-      if ((property as any).landArea !== undefined)
-        dbData.land_area = (property as any).landArea;
-      if ((property as any).sewerage !== undefined)
-        dbData.sewerage = (property as any).sewerage;
-      if ((property as any).gas !== undefined)
-        dbData.gas = (property as any).gas;
-      if ((property as any).water !== undefined)
-        dbData.water = (property as any).water;
-      if ((property as any).electricity !== undefined)
-        dbData.electricity = (property as any).electricity;
-      if ((property as any).heatingSources !== undefined)
-        dbData.heating_sources = (property as any).heatingSources;
-      if ((property as any).hasBuildings !== undefined)
-        dbData.has_buildings = (property as any).hasBuildings;
+      if (files.images) {
+        files.images.forEach(f => formData.append('images', f));
+      }
+      if (files.video) formData.append('video', files.video);
 
-      // Commercial
-      if ((property as any).commercialTypes !== undefined)
-        dbData.commercial_types = (property as any).commercialTypes;
-
-      // Land
-      if ((property as any).landType !== undefined)
-        dbData.land_type = (property as any).landType;
-      if ((property as any).roadType !== undefined)
-        dbData.road_type = (property as any).roadType;
-
-      const { data, error: err } = await supabase
-        .from("properties")
-        .update(dbData)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (err) throw err;
-
-      if (data) {
-        const entity = mapDbToEntity(data);
+      const response = await apiClient.put(`/properties/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (response.data) {
+        const entity = mapDbToEntity(response.data);
         const index = properties.value.findIndex(
           (p) => String(p.id) === String(id),
         );
@@ -325,28 +226,20 @@ export const usePropertiesStore = defineStore("properties", () => {
       }
     } catch (err: any) {
       console.error("Error updating property:", err);
-      error.value = err.message;
+      error.value = err.response?.data?.error || err.message;
     } finally {
       loading.value = false;
     }
   };
 
   const deleteProperty = async (id: string | number) => {
-    // Optimistic update (optional, but let's wait for confirmation for safety)
     loading.value = true;
     error.value = null;
     try {
-      const { data, error: err } = await supabase
-        .from("properties")
-        .update({ is_remove: true })
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (err) throw err;
-
-      if (data) {
-        const entity = mapDbToEntity(data);
+      const response = await apiClient.patch(`/properties/${id}/delete`);
+      
+      if (response.data) {
+        const entity = mapDbToEntity(response.data);
         const index = properties.value.findIndex(
           (p) => String(p.id) === String(id),
         );
@@ -356,8 +249,8 @@ export const usePropertiesStore = defineStore("properties", () => {
       }
     } catch (err: any) {
       console.error("Error deleting property:", err);
-      error.value = "Ошибка при удалении: " + err.message;
-      throw err; // Re-throw to handle in UI
+      error.value = "Ошибка при удалении: " + (err.response?.data?.error || err.message);
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -367,17 +260,10 @@ export const usePropertiesStore = defineStore("properties", () => {
     loading.value = true;
     error.value = null;
     try {
-      const { data, error: err } = await supabase
-        .from("properties")
-        .update({ is_remove: false })
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (err) throw err;
-
-      if (data) {
-        const entity = mapDbToEntity(data);
+      const response = await apiClient.patch(`/properties/${id}/restore`);
+      
+      if (response.data) {
+        const entity = mapDbToEntity(response.data);
         const index = properties.value.findIndex(
           (p) => String(p.id) === String(id),
         );
@@ -387,7 +273,7 @@ export const usePropertiesStore = defineStore("properties", () => {
       }
     } catch (err: any) {
       console.error("Error restoring property:", err);
-      error.value = "Ошибка при восстановлении: " + err.message;
+      error.value = "Ошибка при восстановлении: " + (err.response?.data?.error || err.message);
       throw err;
     } finally {
       loading.value = false;

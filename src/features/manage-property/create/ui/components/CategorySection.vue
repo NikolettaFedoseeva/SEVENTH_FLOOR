@@ -46,7 +46,7 @@ defineExpose({});
   <Card class="form-section">
     <div class="category-grid">
       <div class="category-col">
-        <label>Рубрика</label>
+        <label>Рубрика <span class="required">*</span></label>
         <div class="select-list">
           <div
             v-for="r in rubrics"
@@ -60,7 +60,7 @@ defineExpose({});
         </div>
       </div>
       <div v-if="selectedRubric !== 'exchange'" class="category-col">
-        <label>Подрубрика</label>
+        <label>Подрубрика <span class="required">*</span></label>
         <div class="select-list">
           <div
             v-for="s in subrubrics"

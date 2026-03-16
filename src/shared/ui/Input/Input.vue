@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type PropType } from "vue";
+import { computed, nextTick, type PropType } from "vue";
 
 // #region defineProps
 const props = defineProps({
@@ -41,6 +41,10 @@ const props = defineProps({
     type: [String, Number] as PropType<string | number>,
     default: undefined,
   },
+  mask: {
+    type: String,
+    default: "",
+  },
 });
 // #endregion defineProps
 
@@ -70,13 +74,52 @@ const inputType = computed<string>(() => {
 // #region Функции
 const handleInput = (event: Event): void => {
   const target = event.target as HTMLInputElement;
-  if (props.type === "number") {
-    // Remove all non-digit characters
-    const numericValue = target.value.replace(/\D/g, "");
+  let rawValue = target.value;
+  const cursorPosition = target.selectionStart;
+
+  if (props.mask) {
+    const mask = props.mask;
+    let cleanValue = rawValue.replace(/\D/g, "");
+    
+    // special handling for +373 mask to avoid duplication if user types it
+    const staticDigits = mask.split('#')[0].replace(/\D/g, "");
+    if (staticDigits && cleanValue.startsWith(staticDigits)) {
+      cleanValue = cleanValue.slice(staticDigits.length);
+    }
+
+    let maskedValue = "";
+    let dataIndex = 0;
+
+    for (let i = 0; i < mask.length && dataIndex < cleanValue.length; i++) {
+      if (mask[i] === "#") {
+        maskedValue += cleanValue[dataIndex];
+        dataIndex++;
+      } else {
+        maskedValue += mask[i];
+      }
+    }
+    
+    // If the next character in mask is static, add it too (UX enhancement)
+    const nextCharIndex = maskedValue.length;
+    if (nextCharIndex < mask.length && mask[nextCharIndex] !== "#" && dataIndex < cleanValue.length) {
+       // This loop might be needed if there are multiple static chars
+    }
+
+    target.value = maskedValue;
+    value.value = maskedValue;
+
+    // Restore cursor position roughly (simple version)
+    // Note: for a fully robust solution we'd need more complex logic, 
+    // but this is better than nothing.
+    nextTick(() => {
+      target.setSelectionRange(target.value.length, target.value.length);
+    });
+  } else if (props.type === "number") {
+    const numericValue = rawValue.replace(/\D/g, "");
     target.value = numericValue;
     value.value = numericValue;
   } else {
-    value.value = target.value;
+    value.value = rawValue;
   }
 };
 // #endregion Функции

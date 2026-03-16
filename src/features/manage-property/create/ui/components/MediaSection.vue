@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, type PropType } from "vue";
-import { Card, Input } from "@/shared/ui";
+import { ref, computed, type PropType } from "vue";
+import { Card, Input, MediaLightbox } from "@/shared/ui";
 
 // #region defineProps
 const props = defineProps({
@@ -8,12 +8,44 @@ const props = defineProps({
     type: Object as PropType<any>,
     required: true,
   },
+  errors: {
+    type: Object as PropType<Record<string, string>>,
+    default: () => ({}),
+  },
 });
 // #endregion defineProps
 
 // #region refs
 const isUploading = ref<boolean>(false);
 const uploadError = ref<string | null>(null);
+
+// New refs for actual File objects linked with their preview URLs
+const mediaFiles = ref<{ url: string, file: File }[]>([]);
+const videoFile = ref<File | null>(null);
+
+// Lightbox state
+const showLightbox = ref(false);
+const lightboxIndex = ref(0);
+
+// #region computed
+const mediaItems = computed(() => {
+  const items: { url: string; type: "image" | "video" }[] = [];
+  
+  // 1. Images
+  if (props.form.images) {
+    props.form.images.forEach((img: string) => {
+      items.push({ url: img, type: "image" });
+    });
+  }
+
+  // 2. Video
+  if (props.form.videoUrl) {
+    items.push({ url: props.form.videoUrl, type: "video" });
+  }
+
+  return items;
+});
+// #endregion computed
 // #endregion refs
 
 // #region Функции
@@ -26,17 +58,22 @@ const handleFileUpload = async (event: Event): Promise<void> => {
 
   try {
     const files = Array.from(target.files);
-
-    // Create a local blob URL for each selected file for immediate preview
-    const urls = files.map((file) => URL.createObjectURL(file));
-
-    // Initialize images array if it doesn't exist
-    if (!props.form.images) {
-      props.form.images = [];
+    
+    // Check limit
+    if (mediaFiles.value.length + files.length > 30) {
+      uploadError.value = "Можно загрузить не более 30 фотографий";
+      isUploading.value = false;
+      target.value = "";
+      return;
     }
 
-    // Add new local URLs to the form
-    props.form.images.push(...urls);
+    files.forEach(file => {
+      const url = URL.createObjectURL(file);
+      mediaFiles.value.push({ url, file });
+      
+      if (!props.form.images) props.form.images = [];
+      props.form.images.push(url);
+    });
 
     // Set the first image as the main image if not set
     if (!props.form.imageUrl && props.form.images.length > 0) {
@@ -48,36 +85,66 @@ const handleFileUpload = async (event: Event): Promise<void> => {
       "Ошибка обработки изображения: " + (err.message || "Неизвестная ошибка");
   } finally {
     isUploading.value = false;
-    // Reset input
     target.value = "";
   }
+};
+
+const handleVideoUpload = (event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+
+  const file = target.files[0];
+  videoFile.value = file;
+  props.form.videoUrl = URL.createObjectURL(file);
+};
+
+const removeVideo = (): void => {
+  videoFile.value = null;
+  props.form.videoUrl = "";
 };
 
 const removeImage = (index: number): void => {
   if (!props.form.images) return;
 
-  const removedUrl = props.form.images[index];
+  const url = props.form.images[index];
   props.form.images.splice(index, 1);
+  
+  const mediaIdx = mediaFiles.value.findIndex(m => m.url === url);
+  if (mediaIdx !== -1) {
+    mediaFiles.value.splice(mediaIdx, 1);
+  }
 
-  // If we removed the main image, update it
-  if (props.form.imageUrl === removedUrl) {
-    props.form.imageUrl =
-      props.form.images.length > 0 ? props.form.images[0] : "";
+  if (props.form.imageUrl === url) {
+    props.form.imageUrl = props.form.images.length > 0 ? props.form.images[0] : "";
   }
 };
 
 const setMainImage = (url: string): void => {
   props.form.imageUrl = url;
 };
+
+const openLightbox = (index: number): void => {
+  lightboxIndex.value = index;
+  showLightbox.value = true;
+};
 // #endregion Функции
 
-defineExpose({});
+const clearMedia = (): void => {
+  mediaFiles.value = [];
+  videoFile.value = null;
+};
+
+defineExpose({
+  mediaFiles,
+  videoFile,
+  clearMedia
+});
 </script>
 
 <template>
   <Card class="form-section">
-    <h3 class="section-title-sm">Загрузите фотографии</h3>
-    <p class="hint">Первое фото будет главным. Поддерживаются JPG, PNG.</p>
+    <h3 class="section-title-sm">Загрузите фотографии <span class="required">*</span></h3>
+    <p class="hint">Первое фото будет главным. Поддерживаются JPG, PNG. Максимум 30 фотографий.</p>
 
     <div class="media-container mt-2">
       <!-- Upload Button -->
@@ -107,7 +174,7 @@ defineExpose({});
         class="photo-preview"
         :class="{ 'is-main': form.imageUrl === img }"
       >
-        <img :src="img" alt="preview" />
+        <img :src="img" alt="preview" @click="openLightbox(Number(idx))" />
         <div class="preview-actions">
           <button
             type="button"
@@ -129,12 +196,50 @@ defineExpose({});
         </div>
       </div>
     </div>
+    <span v-if="errors.images" class="error-text mt-1 d-block">{{ errors.images }}</span>
     <div v-if="uploadError" class="error-message mt-2">{{ uploadError }}</div>
 
     <div class="field full mt-6">
-      <label>Ссылка на видеоролик с Youtube или Vimeo</label>
-      <Input v-model="form.videoUrl" placeholder="" />
+      <h3 class="section-title-sm">Видеообзор</h3>
+      <p class="hint">Загрузите видеофайл (MP4, MOV) или укажите ссылку.</p>
+      
+      <div class="video-upload-section mt-2">
+        <label class="video-upload-btn">
+          <input
+            type="file"
+            accept="video/*"
+            @change="handleVideoUpload"
+            style="display: none"
+          />
+          <span class="btn-text">{{ videoFile ? 'Изменить видео' : 'Выбрать видеофайл' }}</span>
+        </label>
+        
+        <div v-if="form.videoUrl" class="video-preview-combined mt-2">
+          <div v-if="videoFile" class="video-file-info">
+             <span>📹 {{ videoFile.name }} (выбрано для загрузки)</span>
+          </div>
+          <div v-else-if="form.videoUrl.startsWith('http') || form.videoUrl.startsWith('/uploads')" class="video-file-info">
+             <span>📹 Видео загружено</span>
+          </div>
+          
+          <div class="video-preview-actions mt-2">
+            <button type="button" @click="openLightbox(mediaItems.findIndex(m => m.type === 'video'))" class="btn-preview">Посмотреть во весь экран</button>
+            <button type="button" @click="removeVideo" class="text-remove">Удалить</button>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label>Или вставьте ссылку (Youtube, Vimeo)</label>
+          <Input v-model="form.videoUrl" placeholder="https://..." />
+        </div>
+      </div>
     </div>
+    
+    <MediaLightbox 
+      v-model="showLightbox" 
+      :items="mediaItems" 
+      :initial-index="lightboxIndex" 
+    />
   </Card>
 </template>
 
@@ -255,5 +360,65 @@ defineExpose({});
   font-size: 0.8rem;
   color: #f59e0b;
   margin-top: 0.25rem;
+}
+.video-upload-btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+  }
+}
+
+.video-preview-combined {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.video-file-info {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.video-preview-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-preview {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  
+  &:hover {
+    background: #2563eb;
+  }
+}
+
+.text-remove {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 </style>

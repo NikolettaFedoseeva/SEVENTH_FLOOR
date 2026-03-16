@@ -1,41 +1,49 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { supabase } from "@/shared/api/supabase";
-import { Session, User } from "@supabase/supabase-js";
+import { apiClient } from "@/shared/api";
 
 export const useSessionStore = defineStore("session", () => {
   const isAuth = ref(false);
-  const user = ref<User | null>(null);
-  const session = ref<Session | null>(null);
+  const user = ref<any | null>(null);
+  const token = ref<string | null>(localStorage.getItem('auth_token'));
 
   const checkAuth = async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      isAuth.value = true;
-      user.value = data.session.user;
-      session.value = data.session;
+    if (!token.value) return;
+    
+    try {
+      const response = await apiClient.get('/auth/me');
+      if (response.data.user) {
+        isAuth.value = true;
+        user.value = response.data.user;
+      }
+    } catch (err) {
+      isAuth.value = false;
+      user.value = null;
+      token.value = null;
+      localStorage.removeItem('auth_token');
     }
   };
 
   const login = async (payload: { email: string; password: string }) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: payload.email,
-      password: payload.password,
-    });
-    if (error) throw error;
-    if (data.session) {
-      isAuth.value = true;
-      user.value = data.user;
-      session.value = data.session;
+    try {
+      const response = await apiClient.post('/auth/login', payload);
+      if (response.data.session?.access_token) {
+        isAuth.value = true;
+        user.value = response.data.user;
+        token.value = response.data.session.access_token;
+        localStorage.setItem('auth_token', token.value!);
+      }
+    } catch (err: any) {
+      throw new Error(err.response?.data?.error || "Ошибка авторизации");
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
     isAuth.value = false;
     user.value = null;
-    session.value = null;
+    token.value = null;
+    localStorage.removeItem('auth_token');
   };
 
-  return { isAuth, user, session, login, logout, checkAuth };
+  return { isAuth, user, token, login, logout, checkAuth };
 });

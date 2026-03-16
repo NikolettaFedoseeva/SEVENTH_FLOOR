@@ -320,6 +320,10 @@ defineExpose({});
     color: var(--text-primary);
     margin: 0;
     letter-spacing: -0.025em;
+
+    @media (max-width: 767px) {
+      font-size: 1.75rem;
+    }
   }
 
   &__search {
@@ -336,6 +340,12 @@ defineExpose({});
       transition: all 0.3s ease;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 
+      @media (max-width: 639px) {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0.75rem;
+      }
+
       &:focus-within {
         border-color: #3b82f6;
         box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
@@ -348,6 +358,10 @@ defineExpose({});
       margin-left: 1rem;
       margin-right: 0.75rem;
       flex-shrink: 0;
+
+      @media (max-width: 639px) {
+        display: none; // Hide icon on very small screens to save space
+      }
     }
 
     .search-input {
@@ -358,6 +372,12 @@ defineExpose({});
       color: var(--text-primary, #111827);
       background: transparent;
       padding: 0.75rem 0;
+
+      @media (max-width: 639px) {
+        width: 100%;
+        text-align: center;
+        font-size: 1rem;
+      }
 
       &::placeholder {
         color: #9ca3af;
@@ -376,6 +396,11 @@ defineExpose({});
       transition: all 0.2s ease;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+
+      @media (max-width: 639px) {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
 
       &:hover {
         background-color: #3b82f6;

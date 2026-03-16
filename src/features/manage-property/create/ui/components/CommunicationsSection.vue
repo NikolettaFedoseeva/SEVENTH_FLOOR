@@ -22,6 +22,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  errors: {
+    type: Object as PropType<Record<string, string>>,
+    default: () => ({}),
+  },
 });
 // #endregion defineProps
 
@@ -108,6 +112,7 @@ defineExpose({});
             {{ s.label }}
           </label>
         </div>
+        <span v-if="errors.heatingSources" class="error-text">{{ errors.heatingSources }}</span>
       </div>
 
       <!-- Electricity / Water -->

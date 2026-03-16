@@ -210,7 +210,8 @@
   color: #ef4444;
 }
 
-.error {
+.error,
+.error-text {
   font-size: 0.75rem;
   color: #ef4444;
 }

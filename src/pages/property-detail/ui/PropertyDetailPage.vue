@@ -1,18 +1,76 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { usePropertiesStore } from "@/entities/property";
 import { storeToRefs } from "pinia";
-import { Container, Button, Card } from "@/shared/ui";
+import { Container, Button, Card, MediaLightbox } from "@/shared/ui";
 import { useHead } from "@unhead/vue";
 import { getPropertyLabel } from "@/entities/property/model/dictionary";
 import type { Property } from "@/entities/property/model/types";
 
 // #region refs
 const route = useRoute();
+const router = useRouter();
 const store = usePropertiesStore();
 const { properties, loading } = storeToRefs(store);
+// Lightbox state
+const showLightbox = ref(false);
+const lightboxIndex = ref(0);
+
+// #region computed
+const mediaItems = computed(() => {
+  const items: { url: string; type: "image" | "video" }[] = [];
+  if (!property.value) return items;
+
+  const seen = new Set<string>();
+
+  const addUnique = (
+    url: string | null | undefined,
+    type: "image" | "video",
+  ) => {
+    if (!url) return;
+    // Aggressive normalization: strip blob, host, and /uploads/ prefix to compare base paths
+    const normalized = url
+      .replace(/^blob:/, "")
+      .replace(/^https?:\/\/[^/]+/, "")
+      .replace(/^\/uploads\//, "")
+      .replace(/^[/]+/, "");
+
+    if (!seen.has(normalized)) {
+      seen.add(normalized);
+      items.push({ url, type });
+    }
+  };
+
+  // 1. Add main image first
+  addUnique(property.value.imageUrl, "image");
+
+  // 2. Add gallery images
+  if (property.value.images) {
+    property.value.images.forEach((img) => addUnique(img, "image"));
+  }
+
+  // 3. Add video if exists
+  if (property.value.videoUrl) {
+    addUnique(property.value.videoUrl, "video");
+  }
+
+  return items;
+});
+// #endregion computed
+
 // #endregion refs
+
+// #region Функции
+const goBack = () => {
+  router.back();
+};
+
+const openLightbox = (index: number) => {
+  lightboxIndex.value = index;
+  showLightbox.value = true;
+};
+// #endregion Функции
 
 // #region computed
 const property = computed<Property | undefined>(() => {
@@ -33,6 +91,50 @@ useHead({
           "Подробная информация об объекте недвижимости.",
       ),
     },
+    // Open Graph
+    {
+      property: "og:title",
+      content: computed(() => property.value?.title || "Загрузка..."),
+    },
+    {
+      property: "og:description",
+      content: computed(() => property.value?.description?.slice(0, 160) || ""),
+    },
+    {
+      property: "og:image",
+      content: computed(() => property.value?.imageUrl || ""),
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+    {
+      property: "og:url",
+      content: computed(() => window.location.href),
+    },
+    // Twitter
+    {
+      name: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      name: "twitter:title",
+      content: computed(() => property.value?.title || ""),
+    },
+    {
+      name: "twitter:description",
+      content: computed(() => property.value?.description?.slice(0, 160) || ""),
+    },
+    {
+      name: "twitter:image",
+      content: computed(() => property.value?.imageUrl || ""),
+    },
+  ],
+  link: [
+    {
+      rel: "canonical",
+      href: computed(() => window.location.href),
+    },
   ],
 });
 
@@ -52,6 +154,12 @@ defineExpose({});
   <div class="property-page">
     <main class="property-page__main">
       <Container>
+        <div class="property-page__navigation">
+          <button @click="goBack" class="back-button">
+            <span class="back-icon">←</span> Назад
+          </button>
+        </div>
+
         <div v-if="loading" class="loading-state">
           <h2>Загрузка...</h2>
         </div>
@@ -77,11 +185,54 @@ defineExpose({});
 
           <div class="property-detail__content">
             <div class="property-gallery">
-              <img
-                :src="property.imageUrl"
-                :alt="property.title"
-                class="property-image"
-              />
+              <div class="gallery-main" v-if="mediaItems.length > 0">
+                <template v-if="mediaItems[0].type === 'image'">
+                  <img
+                    :src="mediaItems[0].url"
+                    :alt="property.title"
+                    class="property-image clickable"
+                    @click="openLightbox(0)"
+                    loading="lazy"
+                  />
+                </template>
+                <div
+                  v-else
+                  class="video-container clickable"
+                  @click="openLightbox(0)"
+                >
+                  <div class="video-overlay">
+                    <div class="play-button-large">▶</div>
+                  </div>
+                  <video preload="metadata" class="property-video-player">
+                    <source :src="mediaItems[0].url" type="video/mp4" />
+                  </video>
+                </div>
+              </div>
+
+              <div v-if="mediaItems.length > 1" class="gallery-grid">
+                <div
+                  v-for="(item, index) in mediaItems.slice(1)"
+                  :key="index"
+                  class="gallery-item"
+                  @click="openLightbox(index + 1)"
+                >
+                  <img
+                    v-if="item.type === 'image'"
+                    :src="item.url"
+                    :alt="property.title + ' ' + (index + 2)"
+                    class="clickable"
+                    loading="lazy"
+                  />
+                  <div v-else class="video-thumbnail">
+                    <div class="thumbnail-overlay">
+                      <span class="play-icon-sm">▶</span>
+                    </div>
+                    <video preload="metadata">
+                      <source :src="item.url" type="video/mp4" />
+                    </video>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <aside class="property-sidebar">
@@ -104,145 +255,80 @@ defineExpose({});
                   <span class="spec-label">Этаж</span>
                   <span class="spec-value">
                     {{ property.floor
-                    }}{{
-                      property.totalFloors ? ` из ${property.totalFloors}` : ""
-                    }}
+                    }}{{ property.totalFloors ? " / " + property.totalFloors : "" }}
                   </span>
                 </div>
-                <div class="spec-row" v-if="property.landArea">
-                  <span class="spec-label">Участок</span>
-                  <span class="spec-value">{{ property.landArea }} соток</span>
+              </Card>
+
+              <Card class="contact-card">
+                <div class="agent-info">
+                  <div class="agent-avatar">
+                    <img
+                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=100"
+                      alt="Агент"
+                    />
+                  </div>
+                  <div class="agent-details">
+                    <div class="agent-name">Александр Иванов</div>
+                    <div class="agent-status">Специалист по недвижимости</div>
+                  </div>
                 </div>
+                <Button block variant="primary" class="contact-btn">
+                  Показать телефон
+                </Button>
+                <Button block variant="outline"> Написать сообщение </Button>
               </Card>
             </aside>
           </div>
 
-          <!-- Characteristics Section -->
-          <div class="property-section">
+          <section class="property-section" v-if="property.description">
+            <h2 class="section-title">Описание</h2>
+            <p class="description-text">{{ property.description }}</p>
+          </section>
+
+          <section class="property-section">
             <h2 class="section-title">Характеристики</h2>
             <div class="characteristics-grid">
-              <!-- Common -->
-              <div class="char-item" v-if="property.buildingType">
-                <span class="char-label">Тип здания</span>
-                <span class="char-value">{{
-                  getPropertyLabel("buildingType", property.buildingType)
-                }}</span>
-              </div>
-              <div
-                class="char-item"
-                v-if="
-                  property.buildingStatus && property.buildingType === 'new'
-                "
-              >
-                <span class="char-label">Статус</span>
-                <span class="char-value">{{
-                  getPropertyLabel("buildingStatus", property.buildingStatus)
-                }}</span>
-              </div>
-              <div class="char-item" v-if="property.condition">
+              <div v-if="property.condition" class="char-item">
                 <span class="char-label">Состояние</span>
                 <span class="char-value">{{
                   getPropertyLabel("condition", property.condition)
                 }}</span>
               </div>
-              <div class="char-item" v-if="property.heating">
+              <div v-if="property.heating" class="char-item">
                 <span class="char-label">Отопление</span>
                 <span class="char-value">{{
                   getPropertyLabel("heating", property.heating)
                 }}</span>
               </div>
-              <div
-                class="char-item"
-                v-if="property.parking && property.parking !== 'none'"
-              >
-                <span class="char-label">Парковка</span>
-                <span class="char-value">{{
-                  getPropertyLabel("parking", property.parking)
-                }}</span>
-              </div>
-              <div class="char-item" v-if="property.ceilingHeight">
-                <span class="char-label">Высота потолков</span>
-                <span class="char-value">{{ property.ceilingHeight }} м</span>
-              </div>
-
-              <!-- Commercial Specific -->
-              <div
-                class="char-item"
-                v-if="
-                  property.commercialTypes && property.commercialTypes.length
-                "
-              >
-                <span class="char-label">Назначение</span>
-                <span class="char-value">{{
-                  getPropertyLabel("commercialTypes", property.commercialTypes)
-                }}</span>
-              </div>
-
-              <!-- Apartment Specific -->
-              <div class="char-item" v-if="property.wallMaterial">
-                <span class="char-label">Стены</span>
-                <span class="char-value">{{
-                  getPropertyLabel("wallMaterial", property.wallMaterial)
-                }}</span>
-              </div>
-              <div class="char-item" v-if="property.apartmentSeries">
-                <span class="char-label">Серия</span>
-                <span class="char-value">{{
-                  getPropertyLabel("apartmentSeries", property.apartmentSeries)
-                }}</span>
-              </div>
-              <div
-                class="char-item"
-                v-if="property.balcony && property.balcony !== 'none'"
-              >
-                <span class="char-label">Балкон</span>
-                <span class="char-value">{{
-                  getPropertyLabel("balcony", property.balcony)
-                }}</span>
-              </div>
-              <div class="char-item" v-if="property.bathroom">
+              <div v-if="property.bathroom" class="char-item">
                 <span class="char-label">Санузел</span>
                 <span class="char-value">{{
                   getPropertyLabel("bathroom", property.bathroom)
                 }}</span>
               </div>
-
-              <!-- House/Land Specific -->
-              <div class="char-item" v-if="property.gas">
-                <span class="char-label">Газ</span>
+              <div v-if="property.balcony" class="char-item">
+                <span class="char-label">Балкон / Лоджия</span>
                 <span class="char-value">{{
-                  getPropertyLabel("gas", property.gas)
+                  getPropertyLabel("balcony", property.balcony)
                 }}</span>
               </div>
-              <div class="char-item" v-if="property.water">
-                <span class="char-label">Вода</span>
+              <div v-if="property.parking" class="char-item">
+                <span class="char-label">Парковка</span>
                 <span class="char-value">{{
-                  getPropertyLabel("water", property.water)
+                  getPropertyLabel("parking", property.parking)
                 }}</span>
               </div>
-              <div class="char-item" v-if="property.sewerage">
-                <span class="char-label">Канализация</span>
+              <div v-if="property.constructionType" class="char-item">
+                <span class="char-label">Тип постройки</span>
                 <span class="char-value">{{
-                  getPropertyLabel("sewerage", property.sewerage)
-                }}</span>
-              </div>
-              <div class="char-item" v-if="property.electricity !== undefined">
-                <span class="char-label">Электричество</span>
-                <span class="char-value">{{
-                  property.electricity ? "Есть" : "Нет"
-                }}</span>
-              </div>
-              <div class="char-item" v-if="property.roadType">
-                <span class="char-label">Дорога</span>
-                <span class="char-value">{{
-                  getPropertyLabel("roadType", property.roadType)
+                  getPropertyLabel("constructionType", property.constructionType)
                 }}</span>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- Amenities Section -->
-          <div
+          <section
             class="property-section"
             v-if="property.amenities && property.amenities.length"
           >
@@ -256,60 +342,93 @@ defineExpose({});
                 {{ getPropertyLabel("amenities", amenity) }}
               </span>
             </div>
-          </div>
-
-          <!-- Description -->
-          <div class="property-section">
-            <h2 class="section-title">Описание</h2>
-            <p class="description-text">{{ property.description }}</p>
-          </div>
+          </section>
         </div>
-
         <div v-else class="not-found">
           <h2>Объект не найден</h2>
-          <Button to="/catalog" variant="primary">Перейти в каталог</Button>
+          <Button variant="primary" @click="router.push('/catalog')"
+            >Вернуться в каталог</Button
+          >
         </div>
       </Container>
     </main>
+    <MediaLightbox
+      v-if="property"
+      :show="showLightbox"
+      :media="mediaItems"
+      :initial-index="lightboxIndex"
+      @close="showLightbox = false"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .property-page {
+  background-color: #f8fafc;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  padding: 2rem 0;
 
-  &__main {
-    flex: 1;
-    padding: 4rem 0 4rem;
-    background-color: #f8fafc;
+  &__navigation {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+    transform: translateX(-4px);
+  }
+
+  .back-icon {
+    font-size: 1.1rem;
   }
 }
 
 .property-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
   &__header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    align-items: center;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
   }
 
   &__address {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     color: #64748b;
     margin-bottom: 2rem;
   }
 
   &__content {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin-bottom: 3rem;
+    grid-template-columns: 1fr 380px;
+    gap: 3rem;
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
       grid-template-columns: 1fr;
     }
   }
@@ -320,7 +439,7 @@ defineExpose({});
   font-weight: 800;
   color: #0f172a;
   margin: 0;
-  line-height: 1.1;
+  letter-spacing: -0.025em;
 
   @media (max-width: 768px) {
     font-size: 1.75rem;
@@ -328,22 +447,205 @@ defineExpose({});
 }
 
 .property-price {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 800;
   color: #2563eb;
+  white-space: nowrap;
 
   @media (max-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 }
 
-.property-image {
+.property-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gallery-main {
   width: 100%;
-  height: 500px;
-  object-fit: cover;
+  aspect-ratio: 16 / 9;
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.95;
+  }
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.gallery-item {
+  aspect-ratio: 4 / 3;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.property-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: sticky;
+  top: 2rem;
+  height: max-content;
+}
+
+.contact-card {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.agent-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.agent-name {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #0f172a;
+}
+
+.agent-status {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.contact-btn {
+  font-size: 1.125rem;
+  padding: 1rem;
+  font-weight: 700;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.play-button-large {
+  width: 80px;
+  height: 80px;
+  background: rgba(37, 99, 235, 0.9);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  padding-left: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.property-video-player {
+  width: 100%;
+  height: 100%;
+  max-height: 500px;
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+  }
+}
+
+.thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.play-icon-sm {
+  width: 32px;
+  height: 32px;
+  background: rgba(37, 99, 235, 0.9);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  padding-left: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .property-specs {

@@ -160,7 +160,7 @@ defineExpose({});
     transition: color 0.2s;
 
     &:hover,
-    &.router-link-active {
+    &.router-link-exact-active {
       color: #fff;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     }

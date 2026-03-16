@@ -39,6 +39,7 @@ defineExpose({});
         <label>Заголовок объявления <span class="required">*</span></label>
         <Input v-model="form.title" placeholder="" maxlength="70" />
         <div class="char-count">{{ form.title.length }}/70</div>
+        <span v-if="errors.title" class="error-text">{{ errors.title }}</span>
       </div>
 
       <div class="field full">
@@ -51,11 +52,12 @@ defineExpose({});
           maxlength="150"
         ></textarea>
         <div class="char-count">{{ form.description.length }}/150</div>
+        <span v-if="errors.description" class="error-text">{{ errors.description }}</span>
       </div>
 
       <div class="field-group price-group">
         <div class="field">
-          <label>Цена</label>
+          <label>Цена <span class="required">*</span></label>
           <div class="price-input-wrapper">
             <Input
               v-model="form.price"
@@ -75,7 +77,7 @@ defineExpose({});
               </button>
             </div>
           </div>
-          <span v-if="errors.price" class="error">{{ errors.price }}</span>
+          <span v-if="errors.price" class="error-text">{{ errors.price }}</span>
         </div>
       </div>
     </div>

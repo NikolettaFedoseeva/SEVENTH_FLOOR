@@ -6,6 +6,10 @@ import { Input } from "@/shared/ui";
 const props = defineProps({
   form: { type: Object as PropType<any>, required: true },
   commercialTypeList: { type: Array as PropType<any[]>, required: true },
+  errors: {
+    type: Object as PropType<Record<string, string>>,
+    default: () => ({}),
+  },
 });
 // #endregion defineProps
 
@@ -29,9 +33,11 @@ defineExpose({});
         {{ c.label }}
       </label>
     </div>
+    <span v-if="errors.commercialTypes" class="error-text">{{ errors.commercialTypes }}</span>
   </div>
   <div class="field small">
     <label>Общая площадь (м²) <span class="required">*</span></label>
     <Input v-model="form.area" type="number" />
+    <span v-if="errors.area" class="error-text">{{ errors.area }}</span>
   </div>
 </template>

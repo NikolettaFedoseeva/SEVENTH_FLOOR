@@ -57,11 +57,14 @@ defineExpose({});
       <div class="field">
         <label>Город <span class="required">*</span></label>
         <Dropdown v-model="form.city" :options="cityOptions" />
+        <span v-if="errors.city" class="error-text">{{ errors.city }}</span>
       </div>
       <div class="field">
-        <label>Улица</label>
+        <label>Улица <span class="required">*</span></label>
         <Input v-model="form.address" placeholder="" />
-        <span v-if="errors.address" class="error">{{ errors.address }}</span>
+        <span v-if="errors.address" class="error-text">{{
+          errors.address
+        }}</span>
       </div>
       <div
         v-if="

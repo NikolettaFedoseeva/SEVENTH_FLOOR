@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { type PropType } from "vue";
+import { type PropType, computed } from "vue";
 import { Card, Dropdown } from "@/shared/ui";
+import {
+  type PropertyType,
+  SewerageType,
+  GasType,
+  HeatingSource,
+  WaterType,
+  CommercialType,
+} from "@/entities/property/model/types";
 import {
   propertyCategories,
   conditionTypes,
@@ -44,8 +52,18 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  errors: {
+    type: Object as PropType<Record<string, string>>,
+    default: () => ({}),
+  },
 });
 // #endregion defineProps
+
+const effectiveType = computed<PropertyType>(() => {
+  return props.selectedRubric === "exchange"
+    ? props.form.type
+    : (props.selectedSubrubric as PropertyType);
+});
 
 defineExpose({});
 </script>
@@ -63,37 +81,37 @@ defineExpose({});
       <div class="field full">
         <label>Тип недвижимости <span class="required">*</span></label>
         <Dropdown v-model="form.type" :options="propertyCategories" />
+        <span v-if="errors.type" class="error-text">{{ errors.type }}</span>
       </div>
     </div>
 
     <div
       v-if="selectedRubric !== 'exchange'"
       class="form-grid pl-4 pr-4 pb-4"
-      :class="
-        selectedSubrubric && selectedSubrubric.startsWith('commercial')
-          ? 'commercial'
-          : ''
-      "
+      :class="effectiveType?.startsWith('commercial') ? 'commercial' : ''"
     >
       <!-- ================= COMMERCIAL ================= -->
       <CommercialCharacteristics
-        v-if="selectedSubrubric && selectedSubrubric.startsWith('commercial')"
+        v-if="effectiveType?.startsWith('commercial')"
         :form="form"
+        :errors="errors"
         :commercialTypeList="commercialTypeList"
       />
 
       <!-- ================= LAND ================= -->
       <LandCharacteristics
-        v-else-if="selectedSubrubric === 'land'"
+        v-else-if="effectiveType === 'land'"
         :form="form"
+        :errors="errors"
         :landStructures="landStructures"
         :landPurpose="landPurpose"
       />
 
-      <!-- ================= HOUSE (SALE) ================= -->
+      <!-- ================= HOUSE (SALE/EXCHANGE) ================= -->
       <HouseSaleCharacteristics
-        v-else-if="selectedSubrubric === 'house' && selectedRubric !== 'rent'"
+        v-else-if="effectiveType === 'house' && selectedRubric !== 'rent'"
         :form="form"
+        :errors="errors"
         :houseConditionTypes="houseConditionTypes"
         :houseFloorsList="houseFloorsList"
         :roomsCountListHouse="roomsCountListHouse"
@@ -102,21 +120,23 @@ defineExpose({});
 
       <!-- ================= HOUSE (RENT) ================= -->
       <HouseRentCharacteristics
-        v-else-if="selectedSubrubric === 'house' && selectedRubric === 'rent'"
+        v-else-if="effectiveType === 'house' && selectedRubric === 'rent'"
         :form="form"
+        :errors="errors"
         :houseConditionTypes="houseConditionTypes"
         :houseFloorsList="houseFloorsList"
         :roomsCountListHouse="roomsCountListHouse"
         :bathroomTypes="bathroomTypes"
       />
 
-      <!-- ================= APARTMENT / ROOM (SALE) ================= -->
+      <!-- ================= APARTMENT / ROOM (SALE/EXCHANGE) ================= -->
       <ApartmentSaleCharacteristics
         v-else-if="
-          ['apartment', 'room'].includes(selectedSubrubric) &&
+          ['apartment', 'room'].includes(effectiveType) &&
           selectedRubric !== 'rent'
         "
         :form="form"
+        :errors="errors"
         :roomsCountList="roomsCountList"
         :roomTypesList="roomTypesList"
         :buildingTypes="buildingTypes"
@@ -133,10 +153,11 @@ defineExpose({});
       <!-- ================= APARTMENT / ROOM (RENT) ================= -->
       <ApartmentRentCharacteristics
         v-else-if="
-          ['apartment', 'room'].includes(selectedSubrubric) &&
+          ['apartment', 'room'].includes(effectiveType) &&
           selectedRubric === 'rent'
         "
         :form="form"
+        :errors="errors"
         :roomsCountList="roomsCountList"
         :roomTypesList="roomTypesList"
         :buildingTypes="buildingTypes"

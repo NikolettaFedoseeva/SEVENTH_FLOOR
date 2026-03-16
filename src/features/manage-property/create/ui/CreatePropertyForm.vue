@@ -31,19 +31,73 @@ const props = defineProps({
 // #endregion defineProps
 
 // #region refs
-const { form, errors, isLoading, success, createProperty, isEdit } =
-  useCreateProperty(props.propertyId);
+const {
+  form,
+  errors,
+  isLoading,
+  success,
+  validationFailed,
+  createProperty,
+  resetForm,
+  isEdit,
+  error,
+} = useCreateProperty(props.propertyId);
 
+const mediaSectionRef = ref<any>(null);
 const selectedRubric = ref<string>("sale");
 const selectedSubrubric = ref<PropertyType>("apartment");
+
+const onSubmit = async () => {
+  const mediaFiles = mediaSectionRef.value?.mediaFiles || [];
+  const images = mediaFiles.map((m: any) => m.file);
+
+  // Logic to avoid double upload:
+  // If the main image is also in the 'images' list, we just send its index
+  const mainImageUrl = form.imageUrl;
+  const mainImageIndex = mediaFiles.findIndex(
+    (m: any) => m.url === mainImageUrl,
+  );
+
+  let image_url = null;
+  let main_image_index = undefined;
+
+  if (mainImageIndex !== -1) {
+    // If found in current mediaFiles (which are the files being uploaded)
+    main_image_index = mainImageIndex;
+  } else {
+    // If not found (might be an existing string URL from server during edit)
+    image_url = mainImageUrl;
+  }
+
+  const video = mediaSectionRef.value?.videoFile || null;
+
+  await createProperty(
+    {
+      image_url,
+      images,
+      video,
+      main_image_index,
+    },
+    selectedRubric.value,
+  );
+
+  if (success.value && !isEdit) {
+    mediaSectionRef.value?.clearMedia();
+    selectedRubric.value = "sale";
+    selectedSubrubric.value = "apartment";
+  }
+};
 // #endregion refs
 
 // #region computed
 // --- Conditional Field Visibility ---
 // Need this one for Communications block here
-const showCommunications = computed<boolean>(() =>
-  ["house"].includes(form.type as string),
-);
+
+// const effectiveType = computed<PropertyType>(() => {
+//   return selectedRubric.value === "exchange"
+//     ? form.type
+//     : (selectedSubrubric.value as PropertyType);
+// });
 // #endregion computed
 
 // #region watch
@@ -60,7 +114,13 @@ watch(
       form.type = subrubric as PropertyType;
     } else {
       // For exchange, reset type so user has to select it
+      // in the dropdown inside CharacteristicsSection
       form.type = undefined as any;
+    }
+
+    // Default mandatory fields for certain types
+    if (form.type === "land" || form.type?.startsWith("commercial")) {
+      form.rooms = 0;
     }
   },
   { immediate: true },
@@ -71,16 +131,13 @@ defineExpose({});
 </script>
 
 <template>
-  <form
-    @submit.prevent="createProperty"
-    class="create-property-form f fd-col g-4"
-  >
+  <form @submit.prevent="onSubmit" class="create-property-form f fd-col g-4">
     <CategorySection
       v-model:selectedRubric="selectedRubric"
       v-model:selectedSubrubric="selectedSubrubric"
     />
 
-    <MediaSection :form="form" />
+    <MediaSection :form="form" :errors="errors" ref="mediaSectionRef" />
 
     <LocationSection
       :form="form"
@@ -93,12 +150,14 @@ defineExpose({});
 
     <CharacteristicsSection
       :form="form"
+      :errors="errors"
       :selectedRubric="selectedRubric"
       :selectedSubrubric="selectedSubrubric"
     />
 
     <CommunicationsSection
       :form="form"
+      :errors="errors"
       :selectedRubric="selectedRubric"
       :selectedSubrubric="selectedSubrubric"
     />
@@ -108,6 +167,22 @@ defineExpose({});
       :selectedRubric="selectedRubric"
       :selectedSubrubric="selectedSubrubric"
     />
+
+    <div v-if="validationFailed" class="error-message-global validation-error">
+      <span class="error-icon">❌</span>
+      <div class="error-content">
+        <strong>Форма не отправлена:</strong>
+        <p>Пожалуйста, заполните все обязательные поля, отмеченные звездочкой (*).</p>
+      </div>
+    </div>
+
+    <div v-if="error" class="error-message-global">
+      <span class="error-icon">⚠️</span>
+      <div class="error-content">
+        <strong>Ошибка сохранения:</strong>
+        <p>{{ error }}</p>
+      </div>
+    </div>
 
     <div v-if="success" class="success-message">
       {{ isEdit ? "Объект успешно обновлен!" : "Объект успешно добавлен!" }}
@@ -140,6 +215,30 @@ defineExpose({});
     display: flex;
     justify-content: flex-end;
     margin-top: 1rem;
+  }
+
+  .error-message-global {
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+
+    .error-icon {
+      font-size: 1.25rem;
+    }
+
+    .error-content {
+      p {
+        margin: 0.25rem 0 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+    }
   }
 
   .success-message {
