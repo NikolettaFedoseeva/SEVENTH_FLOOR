@@ -34,19 +34,8 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const PropertiesController = __importStar(require("../controllers/properties"));
-const upload_1 = require("../config/upload");
-const authMiddleware_1 = require("../middleware/authMiddleware");
+const AuthController = __importStar(require("../controllers/auth"));
 const router = (0, express_1.Router)();
-router.get('/', PropertiesController.getAll);
-router.get('/:id', PropertiesController.getById);
-const uploadFields = upload_1.upload.fields([
-    { name: 'image_url', maxCount: 1 },
-    { name: 'images', maxCount: 30 },
-    { name: 'video', maxCount: 1 }
-]);
-router.post('/', authMiddleware_1.authMiddleware, uploadFields, PropertiesController.create);
-router.put('/:id', authMiddleware_1.authMiddleware, uploadFields, PropertiesController.update);
-router.patch('/:id/delete', authMiddleware_1.authMiddleware, PropertiesController.softDelete);
-router.patch('/:id/restore', authMiddleware_1.authMiddleware, PropertiesController.restore);
+router.post('/login', AuthController.login);
+router.get('/me', AuthController.getMe);
 exports.default = router;
