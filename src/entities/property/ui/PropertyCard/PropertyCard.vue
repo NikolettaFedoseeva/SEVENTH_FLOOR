@@ -66,8 +66,8 @@ defineExpose({});
           class="property-card__image"
           loading="lazy"
         />
-        
-        <button 
+
+        <!-- <button 
           class="favorite-btn" 
           :class="{ 'is-active': isFavorite(property.id) }"
           @click.stop.prevent="toggleFavorite(property.id)"
@@ -75,7 +75,7 @@ defineExpose({});
         >
           <span v-if="isFavorite(property.id)">❤️</span>
           <span v-else>🤍</span>
-        </button>
+        </button> -->
 
         <div class="property-card__overlay"></div>
         <div class="property-card__price-tag">{{ formattedPrice }}</div>
@@ -205,7 +205,7 @@ defineExpose({});
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 1.2rem;
     padding: 0;
 

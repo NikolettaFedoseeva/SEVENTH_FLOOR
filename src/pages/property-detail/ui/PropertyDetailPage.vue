@@ -255,28 +255,11 @@ defineExpose({});
                   <span class="spec-label">Этаж</span>
                   <span class="spec-value">
                     {{ property.floor
-                    }}{{ property.totalFloors ? " / " + property.totalFloors : "" }}
+                    }}{{
+                      property.totalFloors ? " / " + property.totalFloors : ""
+                    }}
                   </span>
                 </div>
-              </Card>
-
-              <Card class="contact-card">
-                <div class="agent-info">
-                  <div class="agent-avatar">
-                    <img
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=100"
-                      alt="Агент"
-                    />
-                  </div>
-                  <div class="agent-details">
-                    <div class="agent-name">Александр Иванов</div>
-                    <div class="agent-status">Специалист по недвижимости</div>
-                  </div>
-                </div>
-                <Button block variant="primary" class="contact-btn">
-                  Показать телефон
-                </Button>
-                <Button block variant="outline"> Написать сообщение </Button>
               </Card>
             </aside>
           </div>
@@ -301,6 +284,40 @@ defineExpose({});
                   getPropertyLabel("heating", property.heating)
                 }}</span>
               </div>
+              <div v-if="property.heatingSources && property.heatingSources.length" class="char-item">
+                <span class="char-label">Источник отопления</span>
+                <span class="char-value">{{
+                  getPropertyLabel("heatingSources", property.heatingSources)
+                }}</span>
+              </div>
+              <div v-if="property.roomType" class="char-item">
+                <span class="char-label">Тип комнат</span>
+                <span class="char-value">{{
+                  getPropertyLabel("roomTypes", property.roomType)
+                }}</span>
+              </div>
+              <div v-if="property.wallMaterial" class="char-item">
+                <span class="char-label">Материал стен</span>
+                <span class="char-value">{{
+                  getPropertyLabel("wallMaterial", property.wallMaterial)
+                }}</span>
+              </div>
+              <div v-if="property.ceilingHeight" class="char-item">
+                <span class="char-label">Высота потолков</span>
+                <span class="char-value">{{ property.ceilingHeight }} м</span>
+              </div>
+              <div v-if="property.positionInBuilding" class="char-item">
+                <span class="char-label">Расположение</span>
+                <span class="char-value">{{
+                  getPropertyLabel("positionInBuilding", property.positionInBuilding)
+                }}</span>
+              </div>
+              <div v-if="property.apartmentSeries" class="char-item">
+                <span class="char-label">Планировка</span>
+                <span class="char-value">{{
+                  getPropertyLabel("apartmentSeries", property.apartmentSeries)
+                }}</span>
+              </div>
               <div v-if="property.bathroom" class="char-item">
                 <span class="char-label">Санузел</span>
                 <span class="char-value">{{
@@ -322,7 +339,43 @@ defineExpose({});
               <div v-if="property.constructionType" class="char-item">
                 <span class="char-label">Тип постройки</span>
                 <span class="char-value">{{
-                  getPropertyLabel("constructionType", property.constructionType)
+                  getPropertyLabel(
+                    "constructionType",
+                    property.constructionType,
+                  )
+                }}</span>
+              </div>
+              <!-- Communications / Plot for houses/land -->
+              <div v-if="property.landArea" class="char-item">
+                <span class="char-label">Площадь участка</span>
+                <span class="char-value">{{ property.landArea }} соток</span>
+              </div>
+              <div v-if="property.sewerage" class="char-item">
+                <span class="char-label">Канализация</span>
+                <span class="char-value">{{
+                  getPropertyLabel("sewerage", property.sewerage)
+                }}</span>
+              </div>
+              <div v-if="property.gas" class="char-item">
+                <span class="char-label">Газ</span>
+                <span class="char-value">{{
+                  getPropertyLabel("gas", property.gas)
+                }}</span>
+              </div>
+              <div v-if="property.water && property.water.length" class="char-item">
+                <span class="char-label">Водоснабжение</span>
+                <span class="char-value">{{
+                  getPropertyLabel("water", property.water)
+                }}</span>
+              </div>
+              <div v-if="property.electricity !== undefined" class="char-item">
+                <span class="char-label">Электричество</span>
+                <span class="char-value">{{ property.electricity ? 'Есть' : 'Нет' }}</span>
+              </div>
+              <div v-if="property.hasBuildings !== undefined" class="char-item">
+                <span class="char-label">Строения на участке</span>
+                <span class="char-value">{{
+                  property.hasBuildings ? 'Есть' : 'Нет'
                 }}</span>
               </div>
             </div>
@@ -354,10 +407,9 @@ defineExpose({});
     </main>
     <MediaLightbox
       v-if="property"
-      :show="showLightbox"
-      :media="mediaItems"
+      v-model="showLightbox"
+      :items="mediaItems"
       :initial-index="lightboxIndex"
-      @close="showLightbox = false"
     />
   </div>
 </template>

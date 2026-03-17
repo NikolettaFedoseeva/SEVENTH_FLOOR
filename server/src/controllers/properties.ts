@@ -37,19 +37,76 @@ export const getById = async (req: Request, res: Response) => {
   }
 };
 
+const JSON_FIELDS = ['amenities', 'water', 'heating_sources', 'commercial_types', 'road_type', 'images'];
+const NUMERIC_FIELDS = ['price', 'area', 'rooms', 'floor', 'total_floors', 'living_area', 'kitchen_area', 'ceiling_height', 'land_area'];
+const BOOLEAN_FIELDS = ['verified', 'electricity', 'has_buildings', 'is_remove'];
+const VALID_COLUMNS = [
+  'title', 'address', 'district', 'price', 'image_url', 'area', 'rooms', 'type', 'description',
+  'rent_period', 'floor', 'total_floors', 'heating', 'building_type', 'building_status',
+  'parking', 'source', 'verified', 'currency', 'images', 'video_url', 'city', 'house_number',
+  'living_area', 'kitchen_area', 'ceiling_height', 'layout', 'room_type', 'bathroom', 'balcony', 'condition',
+  'amenities', 'is_remove', 'wall_material', 'position_in_building', 'apartment_series', 'construction_type',
+  'land_area', 'sewerage', 'gas', 'water', 'electricity', 'heating_sources', 'has_buildings',
+  'commercial_types', 'land_type', 'road_type'
+];
+
+const sanitizePropertyData = (rawData: any) => {
+  const data: any = {};
+  
+  // Filter only valid columns and handle potential arrays from multiple FormData fields
+  VALID_COLUMNS.forEach(col => {
+    if (rawData[col] !== undefined) {
+      let val = rawData[col];
+      
+      // If multiple fields with the same name were sent, take the last one
+      if (Array.isArray(val) && !JSON_FIELDS.includes(col)) {
+        val = val[val.length - 1];
+      }
+      
+      // Normalize common values
+      if (val === 'true') val = true;
+      else if (val === 'false') val = false;
+      else if (val === 'null' || val === '') val = null;
+      
+      // Type conversion
+      if (NUMERIC_FIELDS.includes(col) && val !== null) {
+        const num = parseFloat(val);
+        val = isNaN(num) ? null : num;
+      } else if (BOOLEAN_FIELDS.includes(col) && val !== null) {
+        val = val === true || val === '1' || val === 1;
+      } else if (JSON_FIELDS.includes(col) && val !== null) {
+        // Ensure it's stringified JSON for the DB
+        if (typeof val === 'object') {
+          val = JSON.stringify(val);
+        } else if (typeof val === 'string') {
+          try {
+            JSON.parse(val); // Verify validity
+          } catch (e) {
+            console.warn(`Field ${col} is not valid JSON string, wrapping in array`);
+            val = JSON.stringify([val]);
+          }
+        }
+      }
+      
+      data[col] = val;
+    }
+  });
+
+  return data;
+};
+
 export const create = async (req: Request, res: Response) => {
   try {
-    console.log('Create Property Request:', req.body);
-    const data = { ...req.body };
+    const rawData = { ...req.body };
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     // 1. Process images
     let finalImages: string[] = [];
-    if (data.images) {
+    if (rawData.images) {
       try {
-        finalImages = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
+        const imgVal = typeof rawData.images === 'string' ? JSON.parse(rawData.images) : rawData.images;
+        finalImages = Array.isArray(imgVal) ? imgVal : [];
       } catch (e) {
-        console.error('Error parsing images JSON:', e);
         finalImages = [];
       }
     }
@@ -58,55 +115,26 @@ export const create = async (req: Request, res: Response) => {
       const newPaths = files['images'].map(file => `/uploads/${file.filename}`);
       finalImages = [...finalImages, ...newPaths];
     }
-    
-    // Only set data.images if we have images or it was explicitly provided
-    if (finalImages.length > 0 || data.images) {
-      data.images = JSON.stringify(finalImages);
-    }
+    rawData.images = finalImages;
 
     // 2. Process image_url (Main Image)
-    if (data.main_image_index !== undefined && finalImages.length > 0) {
-      const idx = parseInt(data.main_image_index);
+    if (rawData.main_image_index !== undefined) {
+      const idx = parseInt(rawData.main_image_index);
       if (!isNaN(idx) && idx >= 0 && idx < finalImages.length) {
-        data.image_url = finalImages[idx];
+        rawData.image_url = finalImages[idx];
       }
     } else if (files && files['image_url'] && files['image_url'][0]) {
-      data.image_url = `/uploads/${files['image_url'][0].filename}`;
-    } else if (finalImages.length > 0 && !data.image_url) {
-      data.image_url = finalImages[0];
+      rawData.image_url = `/uploads/${files['image_url'][0].filename}`;
+    } else if (finalImages.length > 0 && !rawData.image_url) {
+      rawData.image_url = finalImages[0];
     }
 
     // 3. Process video
     if (files && files['video']) {
-      data.video_url = `/uploads/${files['video'][0].filename}`;
+      rawData.video_url = `/uploads/${files['video'][0].filename}`;
     }
 
-    // Cleanup
-    delete data.main_image_index;
-    delete data.id;
-
-    // Convert types from FormData
-    Object.keys(data).forEach(key => {
-      if (data[key] === 'true') data[key] = true;
-      else if (data[key] === 'false') data[key] = false;
-      else if (data[key] === 'null') data[key] = null;
-      else if (data[key] === '') data[key] = null;
-    });
-
-    const jsonFields = ['amenities', 'water', 'heating_sources', 'commercial_types', 'road_type'];
-    jsonFields.forEach(field => {
-      if (data[field] && typeof data[field] === 'string') {
-        try {
-          // Verify it's valid JSON if it's already a string
-          JSON.parse(data[field]);
-        } catch (e) {
-          // If not valid JSON, it might be a plain string we should skip or wrap
-          console.warn(`Field ${field} is not valid JSON, skipping stringification`);
-        }
-      } else if (data[field] && typeof data[field] === 'object') {
-        data[field] = JSON.stringify(data[field]);
-      }
-    });
+    const data = sanitizePropertyData(rawData);
 
     const [result] = await pool.query<ResultSetHeader>(
       'INSERT INTO properties SET ?',
@@ -127,77 +155,47 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    console.log('Update Property Request ID:', req.params.id);
-    console.log('Request Body:', req.body);
-    
-    const data = { ...req.body };
     const id = req.params.id;
+    const rawData = { ...req.body };
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     // 1. Process images
     let finalImages: string[] = [];
-    let imagesProvided = false;
-
-    if (data.images) {
-      imagesProvided = true;
+    let imagesInBody: any = null;
+    if (rawData.images) {
       try {
-        finalImages = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
+        imagesInBody = typeof rawData.images === 'string' ? JSON.parse(rawData.images) : rawData.images;
+        finalImages = Array.isArray(imagesInBody) ? imagesInBody : [];
       } catch (e) {
-        console.error('Error parsing images JSON during update:', e);
         finalImages = [];
       }
     }
 
     if (files && files['images']) {
-      imagesProvided = true;
       const newPaths = files['images'].map(file => `/uploads/${file.filename}`);
       finalImages = [...finalImages, ...newPaths];
     }
     
-    if (imagesProvided) {
-      data.images = JSON.stringify(finalImages);
+    if (rawData.images || (files && files['images'])) {
+      rawData.images = finalImages;
     }
 
     // 2. Process image_url (Main Image)
-    if (data.main_image_index !== undefined && finalImages.length > 0) {
-      const idx = parseInt(data.main_image_index);
+    if (rawData.main_image_index !== undefined) {
+      const idx = parseInt(rawData.main_image_index);
       if (!isNaN(idx) && idx >= 0 && idx < finalImages.length) {
-        data.image_url = finalImages[idx];
+        rawData.image_url = finalImages[idx];
       }
     } else if (files && files['image_url'] && files['image_url'][0]) {
-      data.image_url = `/uploads/${files['image_url'][0].filename}`;
+      rawData.image_url = `/uploads/${files['image_url'][0].filename}`;
     }
 
     // 3. Process video
     if (files && files['video']) {
-      data.video_url = `/uploads/${files['video'][0].filename}`;
+      rawData.video_url = `/uploads/${files['video'][0].filename}`;
     }
 
-    // Cleanup
-    delete data.main_image_index;
-    delete data.id; // CRITICAL: remove id before SET ?
-
-    // Normalize types from FormData
-    Object.keys(data).forEach(key => {
-      if (data[key] === 'true') data[key] = true;
-      else if (data[key] === 'false') data[key] = false;
-      else if (data[key] === 'null') data[key] = null;
-      else if (data[key] === '') data[key] = null;
-    });
-
-    const jsonFields = ['amenities', 'water', 'heating_sources', 'commercial_types', 'road_type'];
-    jsonFields.forEach(field => {
-       if (data[field] && typeof data[field] === 'string') {
-        try {
-          JSON.parse(data[field]);
-        } catch (e) {
-          // ...
-          console.warn(`Field ${field} is not valid JSON string`);
-        }
-      } else if (data[field] && typeof data[field] === 'object') {
-        data[field] = JSON.stringify(data[field]);
-      }
-    });
+    const data = sanitizePropertyData(rawData);
 
     await pool.query(
       'UPDATE properties SET ? WHERE id = ?',

@@ -1,6 +1,6 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
 
-const FAVORITES_KEY = '7floor_favorites';
+const FAVORITES_KEY = "7floor_favorites";
 
 export function useFavorites() {
   const favorites = ref<string[]>([]);
@@ -11,7 +11,7 @@ export function useFavorites() {
       try {
         favorites.value = JSON.parse(stored);
       } catch (e) {
-        console.error('Failed to parse favorites', e);
+        console.error("Failed to parse favorites", e);
         favorites.value = [];
       }
     }

@@ -60,9 +60,10 @@ const props = defineProps({
 // #endregion defineProps
 
 const effectiveType = computed<PropertyType>(() => {
-  return props.selectedRubric === "exchange"
-    ? props.form.type
-    : (props.selectedSubrubric as PropertyType);
+  if (props.selectedRubric === "exchange") {
+    return props.form.type as PropertyType;
+  }
+  return props.selectedSubrubric as PropertyType;
 });
 
 defineExpose({});

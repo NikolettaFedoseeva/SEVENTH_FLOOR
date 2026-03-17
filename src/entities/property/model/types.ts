@@ -1,4 +1,4 @@
-export type PropertyType = "apartment" | "house" | "commercial" | "land";
+export type PropertyType = "apartment" | "house" | "commercial" | "land" | "room" | "dacha" | "garage" | "other" | string;
 export type RentPeriod = "daily" | "monthly" | "sale"; // Added "sale" for completeness
 export type HeatingType =
   | "central"

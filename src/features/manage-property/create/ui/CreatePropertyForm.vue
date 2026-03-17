@@ -101,29 +101,54 @@ const onSubmit = async () => {
 // #endregion computed
 
 // #region watch
-// Update form model when selection changes
+// Update form model when selection changes (User interaction)
 watch(
   [selectedRubric, selectedSubrubric],
   ([rubric, subrubric]) => {
-    // Map rubric to rentPeriod
-    if (rubric === "sale" || rubric === "exchange") form.rentPeriod = "sale";
-    else form.rentPeriod = "monthly";
+    if (!isEdit || (isEdit && isLoading.value === false)) {
+      // Map rubric to rentPeriod
+      if (rubric === "sale" || rubric === "exchange") form.rentPeriod = "sale";
+      else form.rentPeriod = "monthly";
 
-    // Map subrubric to type
-    if (rubric !== "exchange") {
-      form.type = subrubric as PropertyType;
-    } else {
-      // For exchange, reset type so user has to select it
-      // in the dropdown inside CharacteristicsSection
-      form.type = undefined as any;
+      // Map subrubric to type
+      if (rubric !== "exchange") {
+        form.type = subrubric as PropertyType;
+      }
     }
 
     // Default mandatory fields for certain types
-    if (form.type === "land" || form.type?.startsWith("commercial")) {
+    if (form.type === "land" || form.type?.startsWith("commercial") || form.type === "garage") {
       form.rooms = 0;
     }
   },
   { immediate: true },
+);
+
+// SYNC: Update refs when form data is loaded (on Edit)
+watch(
+  () => form.type,
+  (newType) => {
+    if (newType && isEdit) {
+      if (["apartment", "room"].includes(newType)) {
+        selectedSubrubric.value = "apartment" as PropertyType;
+      } else if (newType.startsWith("commercial")) {
+        selectedSubrubric.value = "commercial" as PropertyType;
+      } else if (["house", "land", "garage", "dacha"].includes(newType)) {
+        selectedSubrubric.value = newType as PropertyType;
+      }
+    }
+  },
+);
+
+watch(
+  () => form.rentPeriod,
+  (newPeriod) => {
+    if (newPeriod && isEdit) {
+      // Note: we can't easily distinguish 'sale' from 'exchange' here 
+      // without more info, but we default to 'sale' which is safe.
+      selectedRubric.value = newPeriod === "sale" ? "sale" : "rent";
+    }
+  },
 );
 // #endregion watch
 
