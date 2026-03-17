@@ -41,7 +41,8 @@ defineExpose({});
     v-if="
       selectedRubric !== 'exchange' &&
       !selectedSubrubric.startsWith('commercial') &&
-      !selectedSubrubric.startsWith('land')
+      !selectedSubrubric.startsWith('land') &&
+      selectedSubrubric !== 'garage'
     "
     class="form-section mt-4"
     :padding="false"

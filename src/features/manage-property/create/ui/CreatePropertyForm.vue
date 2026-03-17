@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
 import { useCreateProperty } from "../model/useCreateProperty";
 import { Button, Input, Card } from "@/shared/ui";
 import type {
@@ -9,6 +10,7 @@ import type {
   HeatingSource,
   WaterType,
   CommercialType,
+  RentPeriod,
 } from "@/entities/property/model/types";
 
 import {} from "../model/options";
@@ -42,6 +44,8 @@ const {
   isEdit,
   error,
 } = useCreateProperty(props.propertyId);
+
+const router = useRouter();
 
 const mediaSectionRef = ref<any>(null);
 const selectedRubric = ref<string>("sale");
@@ -81,24 +85,19 @@ const onSubmit = async () => {
     selectedRubric.value,
   );
 
-  if (success.value && !isEdit) {
-    mediaSectionRef.value?.clearMedia();
-    selectedRubric.value = "sale";
-    selectedSubrubric.value = "apartment";
+  if (success.value) {
+    if (!isEdit) {
+      mediaSectionRef.value?.clearMedia();
+      selectedRubric.value = "sale";
+      selectedSubrubric.value = "apartment";
+    }
+
+    // Возврат в админку с небольшой задержкой, чтобы пользователь увидел сообщение об успехе
+    setTimeout(() => {
+      router.push("/admin");
+    }, 1500);
   }
 };
-// #endregion refs
-
-// #region computed
-// --- Conditional Field Visibility ---
-// Need this one for Communications block here
-
-// const effectiveType = computed<PropertyType>(() => {
-//   return selectedRubric.value === "exchange"
-//     ? form.type
-//     : (selectedSubrubric.value as PropertyType);
-// });
-// #endregion computed
 
 // #region watch
 // Update form model when selection changes (User interaction)
@@ -107,8 +106,7 @@ watch(
   ([rubric, subrubric]) => {
     if (!isEdit || (isEdit && isLoading.value === false)) {
       // Map rubric to rentPeriod
-      if (rubric === "sale" || rubric === "exchange") form.rentPeriod = "sale";
-      else form.rentPeriod = "monthly";
+      form.rentPeriod = rubric as RentPeriod;
 
       // Map subrubric to type
       if (rubric !== "exchange") {
@@ -117,7 +115,11 @@ watch(
     }
 
     // Default mandatory fields for certain types
-    if (form.type === "land" || form.type?.startsWith("commercial") || form.type === "garage") {
+    if (
+      form.type === "land" ||
+      form.type?.startsWith("commercial") ||
+      form.type === "garage"
+    ) {
       form.rooms = 0;
     }
   },
@@ -144,7 +146,7 @@ watch(
   () => form.rentPeriod,
   (newPeriod) => {
     if (newPeriod && isEdit) {
-      // Note: we can't easily distinguish 'sale' from 'exchange' here 
+      // Note: we can't easily distinguish 'sale' from 'exchange' here
       // without more info, but we default to 'sale' which is safe.
       selectedRubric.value = newPeriod === "sale" ? "sale" : "rent";
     }
@@ -197,7 +199,10 @@ defineExpose({});
       <span class="error-icon">❌</span>
       <div class="error-content">
         <strong>Форма не отправлена:</strong>
-        <p>Пожалуйста, заполните все обязательные поля, отмеченные звездочкой (*).</p>
+        <p>
+          Пожалуйста, заполните все обязательные поля, отмеченные звездочкой
+          (*).
+        </p>
       </div>
     </div>
 

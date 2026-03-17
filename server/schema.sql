@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS properties (
     water JSON, -- JSON array
     electricity BOOLEAN,
     heating_sources JSON, -- JSON array
-    has_buildings BOOLEAN,
+    has_buildings VARCHAR(255),
 
     -- Commercial specific
     commercial_types JSON, -- JSON array

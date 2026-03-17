@@ -56,15 +56,23 @@ defineExpose({});
         <label>Коммуникации</label>
         <div class="checkbox-group-vertical">
           <label class="checkbox-label-sm">
-            <input type="checkbox" value="gas" v-model="form.amenities" />
+            <input 
+              type="checkbox" 
+              :checked="form.gas && form.gas !== 'none'" 
+              @change="form.gas = ($event.target as HTMLInputElement).checked ? 'connected' : 'none'" 
+            />
             Газ
           </label>
           <label class="checkbox-label-sm">
-            <input type="checkbox" value="water" v-model="form.water" />
+            <input type="checkbox" value="central" v-model="form.water" />
             Водопровод
           </label>
           <label class="checkbox-label-sm">
-            <input type="checkbox" value="sewerage" v-model="form.amenities" />
+            <input 
+              type="checkbox" 
+              :checked="form.sewerage && form.sewerage !== 'none'" 
+              @change="form.sewerage = ($event.target as HTMLInputElement).checked ? 'central' : 'none'" 
+            />
             Канализация
           </label>
           <label class="checkbox-label-sm">

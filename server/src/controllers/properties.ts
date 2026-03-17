@@ -39,7 +39,7 @@ export const getById = async (req: Request, res: Response) => {
 
 const JSON_FIELDS = ['amenities', 'water', 'heating_sources', 'commercial_types', 'road_type', 'images'];
 const NUMERIC_FIELDS = ['price', 'area', 'rooms', 'floor', 'total_floors', 'living_area', 'kitchen_area', 'ceiling_height', 'land_area'];
-const BOOLEAN_FIELDS = ['verified', 'electricity', 'has_buildings', 'is_remove'];
+const BOOLEAN_FIELDS = ['verified', 'electricity', 'is_remove'];
 const VALID_COLUMNS = [
   'title', 'address', 'district', 'price', 'image_url', 'area', 'rooms', 'type', 'description',
   'rent_period', 'floor', 'total_floors', 'heating', 'building_type', 'building_status',

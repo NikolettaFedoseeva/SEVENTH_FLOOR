@@ -39,7 +39,9 @@ export const roomsCountList = [
   { value: "1", label: "1 комната" },
   { value: "2", label: "2 комнаты" },
   { value: "3", label: "3 комнаты" },
+  { value: "4", label: "4 комнаты" },
   { value: "4+", label: "4 и более комнат" },
+  { value: "5+", label: "5 и более комнат" },
   { value: "separate", label: "отдельная комната" },
 ];
 
@@ -92,6 +94,8 @@ export const bathroomTypes = [
 
 export const balconyTypes = [
   { value: "none", label: "нет" },
+  { value: "balcony", label: "балкон" },
+  { value: "loggia", label: "лоджия" },
   { value: "1", label: "1" },
   { value: "2", label: "2" },
   { value: "3", label: "3" },
@@ -109,8 +113,11 @@ export const parkingTypes = [
 export const conditionTypes = [
   { value: "major_repair", label: "требует капитального ремонта" },
   { value: "cosmetic_repair", label: "требует косметического ремонта" },
+  { value: "needs_repair", label: "требует ремонта" },
   { value: "no_repair", label: "не требует ремонта" },
   { value: "after_cosmetic", label: "после косметического ремонта" },
+  { value: "after_repair", label: "после ремонта" },
+  { value: "excellent", label: "в отличном состоянии" },
   { value: "euro", label: "евроремонт" },
 ];
 
@@ -121,6 +128,8 @@ export const houseConditionTypes = [
   { value: "after_repair", label: "после ремонта" },
   { value: "no_repair", label: "не требует ремонта" },
   { value: "excellent", label: "в отличном состоянии" },
+  { value: "euro", label: "евроремонт" },
+  { value: "cosmetic", label: "косметический" },
 ];
 
 export const roomsCountListHouse = [
@@ -128,19 +137,28 @@ export const roomsCountListHouse = [
   { value: "2", label: "2 комнаты" },
   { value: "3", label: "3 комнаты" },
   { value: "4", label: "4 комнаты" },
+  { value: "5", label: "5 комнат" },
+  { value: "6", label: "6 комнат" },
+  { value: "7", label: "7 комнат" },
+  { value: "8", label: "8 комнат" },
+  { value: "9", label: "9 комнат" },
+  { value: "10", label: "10 комнат" },
   { value: "5+", label: "5 и более комнат" },
 ];
 
 export const houseFloorsList = [
   { value: "1", label: "1 этаж" },
   { value: "2", label: "2 этажа" },
+  { value: "3", label: "3 этажа" },
   { value: "3+", label: "3 этажа и более" },
 ];
 
 export const heatingTypes = [
   { value: "central", label: "центральное" },
+  { value: "autonomous", label: "автономное" },
   { value: "autonomous_apt", label: "автономное на квартиру" },
   { value: "autonomous_house", label: "автономное на дом" },
+  { value: "none", label: "нет" },
 ];
 
 export const sewerageTypes: { value: SewerageType; label: string }[] = [
@@ -150,8 +168,10 @@ export const sewerageTypes: { value: SewerageType; label: string }[] = [
 ];
 
 export const gasTypes: { value: string; label: string }[] = [
+  { value: "main", label: "магистральный" },
   { value: "connected", label: "подключен" },
   { value: "possible", label: "возможность подключения" },
+  { value: "cylinder", label: "баллон" },
   { value: "none", label: "нет" },
 ];
 

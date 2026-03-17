@@ -1,5 +1,5 @@
 export type PropertyType = "apartment" | "house" | "commercial" | "land" | "room" | "dacha" | "garage" | "other" | string;
-export type RentPeriod = "daily" | "monthly" | "sale"; // Added "sale" for completeness
+export type RentPeriod = "daily" | "monthly" | "sale" | "exchange";
 export type HeatingType =
   | "central"
   | "autonomous"
@@ -132,5 +132,6 @@ export interface Property {
   commercialTypes?: CommercialType[];
   landType?: LandType;
   roadType?: RoadType[];
-  hasBuildings?: boolean; // Structures on plot
+  hasBuildings?: string; // Structures on plot
+  pricePerM2?: number;
 }

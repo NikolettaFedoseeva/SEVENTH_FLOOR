@@ -115,7 +115,7 @@ const handleInput = (event: Event): void => {
       target.setSelectionRange(target.value.length, target.value.length);
     });
   } else if (props.type === "number") {
-    const numericValue = rawValue.replace(/\D/g, "");
+    const numericValue = rawValue.replace(/[^0-9.]/g, "");
     target.value = numericValue;
     value.value = numericValue;
   } else {

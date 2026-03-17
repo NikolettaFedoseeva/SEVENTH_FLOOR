@@ -39,17 +39,28 @@ ${message}
 </div>
     `;
 
-    await sendMail({
+    const result = (await sendMail({
       to: companyEmail,
       subject: `Новая заявка: ${name}`,
       text: mailText,
       html: mailHtml,
-    });
+    })) as any;
 
-    res.json({ success: true, message: 'Заявка успешно отправлена' });
-  } catch (error) {
-    console.error('Error handling contact form:', error);
-    res.status(500).json({ error: 'Ошибка при отправке заявки. Пожалуйста, попробуйте позже.' });
+    if (!result.success) {
+      console.error("Mail delivery failed:", result.error);
+      return res.status(500).json({
+        error: "Ошибка почтового сервера. Пожалуйста, сообщите администратору.",
+        details: result.error,
+      });
+    }
+
+    res.json({ success: true, message: "Заявка успешно отправлена" });
+  } catch (error: any) {
+    console.error("Error handling contact form:", error);
+    res.status(500).json({
+      error: "Критическая ошибка при обработке заявки.",
+      details: error.message,
+    });
   }
 });
 

@@ -8,6 +8,22 @@ import { Apartment, House, Commercial, Land } from "./property.entity";
 const mapDbToEntity = (data: any): Property => {
   const isPresent = (val: any) => val !== null && val !== undefined;
   
+  const safeParse = (val: any) => {
+    if (typeof val === 'string') {
+      try {
+        return JSON.parse(val);
+      } catch (e) {
+        return [];
+      }
+    }
+    return val || [];
+  };
+
+  const toBool = (val: any) => {
+    if (val === true || val === 1 || val === '1' || val === 'true') return true;
+    return false;
+  };
+  
   const baseData: any = {
     id: data.id,
     title: data.title,
@@ -29,7 +45,7 @@ const mapDbToEntity = (data: any): Property => {
     source: data.source,
     verified: Boolean(data.verified),
     currency: data.currency,
-    images: data.images || [],
+    images: safeParse(data.images),
     videoUrl: data.video_url,
     city: data.city,
     houseNumber: data.house_number,
@@ -41,7 +57,7 @@ const mapDbToEntity = (data: any): Property => {
     bathroom: data.bathroom,
     balcony: isPresent(data.balcony) ? String(data.balcony) : undefined,
     condition: data.condition,
-    amenities: data.amenities || [],
+    amenities: safeParse(data.amenities),
     constructionType: data.construction_type,
     isRemove: Boolean(data.is_remove),
     // Apartment
@@ -52,15 +68,17 @@ const mapDbToEntity = (data: any): Property => {
     landArea: isPresent(data.land_area) ? parseFloat(data.land_area) : undefined,
     sewerage: data.sewerage,
     gas: data.gas,
-    water: data.water || [],
-    electricity: Boolean(data.electricity),
-    heatingSources: data.heating_sources || [],
-    hasBuildings: isPresent(data.has_buildings) ? String(data.has_buildings) : undefined,
+    water: safeParse(data.water),
+    electricity: toBool(data.electricity),
+    heatingSources: safeParse(data.heating_sources),
+    hasBuildings: isPresent(data.has_buildings) 
+        ? (data.has_buildings === 0 || data.has_buildings === '0' || data.has_buildings === false ? 'none' : data.has_buildings) 
+        : undefined,
     // Commercial
-    commercialTypes: data.commercial_types || [],
+    commercialTypes: safeParse(data.commercial_types),
     // Land
     landType: data.land_type,
-    roadType: data.road_type || [],
+    roadType: safeParse(data.road_type),
   };
 
   // Instantiate proper class

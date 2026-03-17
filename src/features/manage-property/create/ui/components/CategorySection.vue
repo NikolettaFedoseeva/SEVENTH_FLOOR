@@ -35,6 +35,7 @@ const subrubrics = computed<{ value: string; label: string }[]>(() => {
     { value: "house", label: `${prefix} домов` },
     { value: "commercial", label: `${prefix} нежилых помещений` },
     { value: "land", label: `${prefix} земельных участков` },
+    { value: "garage", label: `${prefix} гаражей / парковок` },
   ];
 });
 // #endregion computed

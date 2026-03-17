@@ -8,6 +8,7 @@ const props = defineProps({
   houseConditionTypes: { type: Array as PropType<any[]>, required: true },
   houseFloorsList: { type: Array as PropType<any[]>, required: true },
   roomsCountListHouse: { type: Array as PropType<any[]>, required: true },
+  landStructures: { type: Array as PropType<any[]>, required: true },
   bathroomTypes: { type: Array as PropType<any[]>, required: true },
   errors: {
     type: Object as PropType<Record<string, string>>,
@@ -43,6 +44,10 @@ defineExpose({});
   <div class="field small">
     <label>Площадь участка (сотки) <span class="required">*</span></label>
     <Input v-model="form.landArea" type="number" />
+  </div>
+  <div class="field">
+    <label>Строения на участке</label>
+    <Dropdown v-model="form.hasBuildings" :options="landStructures" />
   </div>
   <div class="field small">
     <label>Жилая площадь (м²)</label>

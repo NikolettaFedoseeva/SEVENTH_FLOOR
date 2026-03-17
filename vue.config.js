@@ -13,7 +13,6 @@ module.exports = defineConfig({
      * * Порт локальной разработки текущего приложения
      */
     port: 1000,
-    host: "192.168.100.186",
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",

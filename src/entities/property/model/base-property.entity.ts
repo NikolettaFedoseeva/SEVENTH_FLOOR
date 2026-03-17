@@ -10,6 +10,13 @@ import type {
   BathroomType,
   BalconyType,
   ConditionType,
+  SewerageType,
+  GasType,
+  WaterType,
+  HeatingSource,
+  LandType,
+  RoadType,
+  CommercialType,
 } from "./types";
 
 export abstract class BaseProperty implements Property {
@@ -49,6 +56,18 @@ export abstract class BaseProperty implements Property {
   constructionType?: string;
   isRemove?: boolean;
 
+  // New common fields
+  landArea?: number;
+  sewerage?: SewerageType;
+  gas?: GasType;
+  water?: WaterType[];
+  electricity?: boolean;
+  heatingSources?: HeatingSource[];
+  hasBuildings?: any; // String in UI
+  landType?: LandType;
+  roadType?: RoadType[];
+  commercialTypes?: CommercialType[];
+
   constructor(data: Property) {
     this.id = data.id;
     this.title = data.title;
@@ -85,5 +104,17 @@ export abstract class BaseProperty implements Property {
     this.amenities = data.amenities;
     this.constructionType = data.constructionType;
     this.isRemove = data.isRemove;
+    
+    // Assign new fields
+    this.landArea = data.landArea;
+    this.sewerage = data.sewerage;
+    this.gas = data.gas;
+    this.water = data.water;
+    this.electricity = data.electricity;
+    this.heatingSources = data.heatingSources;
+    this.hasBuildings = data.hasBuildings;
+    this.landType = data.landType;
+    this.roadType = data.roadType;
+    this.commercialTypes = data.commercialTypes;
   }
 }

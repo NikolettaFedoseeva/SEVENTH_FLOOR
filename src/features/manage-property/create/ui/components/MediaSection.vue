@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, type PropType } from "vue";
+import { ref, computed, watch, type PropType } from "vue";
 import { Card, Input, MediaLightbox } from "@/shared/ui";
 
 // #region defineProps
@@ -127,6 +127,31 @@ const openLightbox = (index: number): void => {
   lightboxIndex.value = index;
   showLightbox.value = true;
 };
+
+// --- Watchers ---
+// Если фотография одна, она всегда должна быть главной
+watch(
+  () => props.form.images?.length,
+  (newLength) => {
+    if (newLength === 1 && props.form.images && props.form.images.length > 0) {
+      if (props.form.imageUrl !== props.form.images[0]) {
+        props.form.imageUrl = props.form.images[0];
+      }
+    }
+  },
+  { immediate: true }
+);
+
+// Если есть главная фотография, но список images пуст (из старой БД), добавляем её в список
+watch(
+  () => [props.form.imageUrl, props.form.images?.length],
+  ([url, len]) => {
+    if (url && len === 0 && props.form.images) {
+      props.form.images.push(url as string);
+    }
+  },
+  { immediate: true }
+);
 // #endregion Функции
 
 const clearMedia = (): void => {

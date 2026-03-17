@@ -8,6 +8,86 @@ import { useHead } from "@unhead/vue";
 import { getPropertyLabel } from "@/entities/property/model/dictionary";
 import type { Property } from "@/entities/property/model/types";
 
+// #region constants
+const RELEVANT_FIELDS: Record<string, string[]> = {
+  apartment: [
+    "condition",
+    "heating",
+    "roomType",
+    "positionInBuilding",
+    "apartmentSeries",
+    "bathroom",
+    "balcony",
+    "parking",
+    "constructionType",
+    "buildingType",
+    "floor",
+    "totalFloors",
+    "ceilingHeight",
+    "amenities",
+  ],
+  room: [
+    "condition",
+    "heating",
+    "positionInBuilding",
+    "apartmentSeries",
+    "bathroom",
+    "balcony",
+    "parking",
+    "constructionType",
+    "buildingType",
+    "floor",
+    "totalFloors",
+    "ceilingHeight",
+    "amenities",
+  ],
+  house: [
+    "condition",
+    "heatingSources",
+    "ceilingHeight",
+    "bathroom",
+    "landArea",
+    "hasBuildings",
+    "totalFloors",
+    "rooms",
+    "sewerage",
+    "gas",
+    "water",
+    "electricity",
+    "amenities",
+  ],
+  dacha: [
+    "condition",
+    "heatingSources",
+    "ceilingHeight",
+    "bathroom",
+    "landArea",
+    "hasBuildings",
+    "totalFloors",
+    "rooms",
+    "sewerage",
+    "gas",
+    "water",
+    "electricity",
+    "amenities",
+  ],
+  land: [
+    "landArea",
+    "hasBuildings",
+    "landType",
+    "roadType",
+    "gas",
+    "water",
+    "sewerage",
+    "electricity",
+    "amenities",
+  ],
+  commercial: ["commercialTypes"],
+  garage: ["commercialTypes"],
+  other: ["condition"],
+};
+// #endregion constants
+
 // #region refs
 const route = useRoute();
 const router = useRouter();
@@ -16,6 +96,7 @@ const { properties, loading } = storeToRefs(store);
 // Lightbox state
 const showLightbox = ref(false);
 const lightboxIndex = ref(0);
+// #endregion refs
 
 // #region computed
 const mediaItems = computed(() => {
@@ -28,13 +109,19 @@ const mediaItems = computed(() => {
     url: string | null | undefined,
     type: "image" | "video",
   ) => {
-    if (!url) return;
-    // Aggressive normalization: strip blob, host, and /uploads/ prefix to compare base paths
+    if (!url || typeof url !== "string") return;
+
+    // Aggressive normalization for comparison
     const normalized = url
+      .trim()
+      .replace(/\\/g, "/") // Convert backslashes to forward slashes
+      .split("?")[0] // Remove query parameters
       .replace(/^blob:/, "")
       .replace(/^https?:\/\/[^/]+/, "")
-      .replace(/^\/uploads\//, "")
-      .replace(/^[/]+/, "");
+      .replace(/^\/?uploads\//, "")
+      .replace(/^\//, "");
+
+    if (!normalized) return;
 
     if (!seen.has(normalized)) {
       seen.add(normalized);
@@ -43,10 +130,12 @@ const mediaItems = computed(() => {
   };
 
   // 1. Add main image first
-  addUnique(property.value.imageUrl, "image");
+  if (property.value.imageUrl) {
+    addUnique(property.value.imageUrl, "image");
+  }
 
   // 2. Add gallery images
-  if (property.value.images) {
+  if (property.value.images && Array.isArray(property.value.images)) {
     property.value.images.forEach((img) => addUnique(img, "image"));
   }
 
@@ -70,12 +159,25 @@ const openLightbox = (index: number) => {
   lightboxIndex.value = index;
   showLightbox.value = true;
 };
+
+const isFieldRelevant = (fieldName: string): boolean => {
+  if (!property.value) return false;
+  const type = property.value.type as string;
+  // Normalize commercial subrubrics to 'commercial'
+  const baseType = type.startsWith("commercial") ? "commercial" : type;
+  const fields = RELEVANT_FIELDS[baseType];
+  return fields ? fields.includes(fieldName) : true;
+};
 // #endregion Функции
 
 // #region computed
 const property = computed<Property | undefined>(() => {
   const id = route.params.id;
-  return properties.value.find((p: Property) => String(p.id) === String(id));
+  const p = properties.value.find((p: Property) => String(p.id) === String(id));
+  if (p && p.price && p.area) {
+    p.pricePerM2 = Math.round(p.price / p.area);
+  }
+  return p;
 });
 // #endregion computed
 
@@ -166,20 +268,26 @@ defineExpose({});
         <div v-else-if="property" class="property-detail">
           <div class="property-detail__header">
             <h1 class="property-title">{{ property.title }}</h1>
-            <div class="property-price">
-              {{ property.price.toLocaleString("ru-RU") }}
-              {{
-                property.currency === "eur"
-                  ? "€"
-                  : property.currency === "mdl"
-                  ? "MDL"
-                  : "$"
-              }}
+            <div class="property-detail__price">
+              <div class="price-main">
+                {{ property.price.toLocaleString("ru-RU") }}
+                {{
+                  property.currency === "eur"
+                    ? "€"
+                    : property.currency === "mdl"
+                    ? "MDL"
+                    : "$"
+                }}
+                <span class="price-badge" v-if="property.rentPeriod">{{
+                  getPropertyLabel("rentPeriod", property.rentPeriod)
+                }}</span>
+              </div>
             </div>
           </div>
 
           <div class="property-detail__address">
             📍 {{ property.city ? property.city + ", " : ""
+            }}{{ property.district ? property.district + ", " : ""
             }}{{ property.address }}
           </div>
 
@@ -245,9 +353,20 @@ defineExpose({});
                 </div>
                 <div class="spec-row" v-if="property.area">
                   <span class="spec-label">Площадь</span>
-                  <span class="spec-value">{{ property.area }} м²</span>
+                  <div class="spec-value-group">
+                    <span class="spec-value">{{ property.area }} м²</span>
+                    <span v-if="property.livingArea" class="spec-subvalue"
+                      >Жилая: {{ property.livingArea }} м²</span
+                    >
+                    <span v-if="property.kitchenArea" class="spec-subvalue"
+                      >Кухня: {{ property.kitchenArea }} м²</span
+                    >
+                  </div>
                 </div>
-                <div class="spec-row" v-if="property.rooms">
+                <div
+                  class="spec-row"
+                  v-if="property.rooms && Number(property.rooms) > 0"
+                >
                   <span class="spec-label">Комнат</span>
                   <span class="spec-value">{{ property.rooms }}</span>
                 </div>
@@ -272,71 +391,130 @@ defineExpose({});
           <section class="property-section">
             <h2 class="section-title">Характеристики</h2>
             <div class="characteristics-grid">
-              <div v-if="property.condition" class="char-item">
+              <div
+                v-if="isFieldRelevant('condition') && property.condition"
+                class="char-item"
+              >
                 <span class="char-label">Состояние</span>
                 <span class="char-value">{{
                   getPropertyLabel("condition", property.condition)
                 }}</span>
               </div>
-              <div v-if="property.heating" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('heating') &&
+                  property.heating &&
+                  (property.heating !== 'none' ||
+                    !property.heatingSources ||
+                    !property.heatingSources.length)
+                "
+                class="char-item"
+              >
                 <span class="char-label">Отопление</span>
                 <span class="char-value">{{
                   getPropertyLabel("heating", property.heating)
                 }}</span>
               </div>
-              <div v-if="property.heatingSources && property.heatingSources.length" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('heatingSources') &&
+                  property.heatingSources &&
+                  property.heatingSources.length
+                "
+                class="char-item"
+              >
                 <span class="char-label">Источник отопления</span>
                 <span class="char-value">{{
                   getPropertyLabel("heatingSources", property.heatingSources)
                 }}</span>
               </div>
-              <div v-if="property.roomType" class="char-item">
+              <div
+                v-if="isFieldRelevant('roomType') && property.roomType"
+                class="char-item"
+              >
                 <span class="char-label">Тип комнат</span>
                 <span class="char-value">{{
                   getPropertyLabel("roomTypes", property.roomType)
                 }}</span>
               </div>
-              <div v-if="property.wallMaterial" class="char-item">
+              <div
+                v-if="isFieldRelevant('wallMaterial') && property.wallMaterial"
+                class="char-item"
+              >
                 <span class="char-label">Материал стен</span>
                 <span class="char-value">{{
                   getPropertyLabel("wallMaterial", property.wallMaterial)
                 }}</span>
               </div>
-              <div v-if="property.ceilingHeight" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('ceilingHeight') && property.ceilingHeight
+                "
+                class="char-item"
+              >
                 <span class="char-label">Высота потолков</span>
                 <span class="char-value">{{ property.ceilingHeight }} м</span>
               </div>
-              <div v-if="property.positionInBuilding" class="char-item">
-                <span class="char-label">Расположение</span>
+              <div
+                v-if="
+                  isFieldRelevant('positionInBuilding') &&
+                  property.positionInBuilding
+                "
+                class="char-item"
+              >
+                <span class="char-label">Расположение в доме</span>
                 <span class="char-value">{{
-                  getPropertyLabel("positionInBuilding", property.positionInBuilding)
+                  getPropertyLabel(
+                    "positionInBuilding",
+                    property.positionInBuilding,
+                  )
                 }}</span>
               </div>
-              <div v-if="property.apartmentSeries" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('apartmentSeries') && property.apartmentSeries
+                "
+                class="char-item"
+              >
                 <span class="char-label">Планировка</span>
                 <span class="char-value">{{
                   getPropertyLabel("apartmentSeries", property.apartmentSeries)
                 }}</span>
               </div>
-              <div v-if="property.bathroom" class="char-item">
+              <div
+                v-if="isFieldRelevant('bathroom') && property.bathroom"
+                class="char-item"
+              >
                 <span class="char-label">Санузел</span>
                 <span class="char-value">{{
                   getPropertyLabel("bathroom", property.bathroom)
                 }}</span>
               </div>
-              <div v-if="property.balcony" class="char-item">
+              <div
+                v-if="isFieldRelevant('balcony') && property.balcony"
+                class="char-item"
+              >
                 <span class="char-label">Балкон / Лоджия</span>
                 <span class="char-value">{{
                   getPropertyLabel("balcony", property.balcony)
                 }}</span>
               </div>
-              <div v-if="property.parking" class="char-item">
+              <div
+                v-if="isFieldRelevant('parking') && property.parking"
+                class="char-item"
+              >
                 <span class="char-label">Парковка</span>
                 <span class="char-value">{{
                   getPropertyLabel("parking", property.parking)
                 }}</span>
               </div>
-              <div v-if="property.constructionType" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('constructionType') &&
+                  property.constructionType
+                "
+                class="char-item"
+              >
                 <span class="char-label">Тип постройки</span>
                 <span class="char-value">{{
                   getPropertyLabel(
@@ -345,45 +523,172 @@ defineExpose({});
                   )
                 }}</span>
               </div>
-              <!-- Communications / Plot for houses/land -->
-              <div v-if="property.landArea" class="char-item">
+              <div
+                v-if="isFieldRelevant('buildingType') && property.buildingType"
+                class="char-item"
+              >
+                <span class="char-label">Тип здания</span>
+                <span class="char-value">{{
+                  getPropertyLabel("buildingType", property.buildingType)
+                }}</span>
+              </div>
+              <div
+                v-if="
+                  isFieldRelevant('buildingStatus') && property.buildingStatus
+                "
+                class="char-item"
+              >
+                <span class="char-label">Статус здания</span>
+                <span class="char-value">{{
+                  getPropertyLabel("buildingStatus", property.buildingStatus)
+                }}</span>
+              </div>
+              <div
+                v-if="isFieldRelevant('layout') && property.layout"
+                class="char-item"
+              >
+                <span class="char-label">Планировка</span>
+                <span class="char-value">{{
+                  getPropertyLabel("layout", property.layout)
+                }}</span>
+              </div>
+              <div
+                v-if="isFieldRelevant('landArea') && property.landArea"
+                class="char-item"
+              >
                 <span class="char-label">Площадь участка</span>
                 <span class="char-value">{{ property.landArea }} соток</span>
               </div>
-              <div v-if="property.sewerage" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('sewerage') &&
+                  property.sewerage &&
+                  property.sewerage !== 'none'
+                "
+                class="char-item"
+              >
                 <span class="char-label">Канализация</span>
                 <span class="char-value">{{
                   getPropertyLabel("sewerage", property.sewerage)
                 }}</span>
               </div>
-              <div v-if="property.gas" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('gas') &&
+                  property.gas &&
+                  property.gas !== 'none'
+                "
+                class="char-item"
+              >
                 <span class="char-label">Газ</span>
                 <span class="char-value">{{
                   getPropertyLabel("gas", property.gas)
                 }}</span>
               </div>
-              <div v-if="property.water && property.water.length" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('water') &&
+                  property.water &&
+                  property.water.length
+                "
+                class="char-item"
+              >
                 <span class="char-label">Водоснабжение</span>
                 <span class="char-value">{{
                   getPropertyLabel("water", property.water)
                 }}</span>
               </div>
-              <div v-if="property.electricity !== undefined" class="char-item">
+              <div
+                v-if="isFieldRelevant('electricity') && property.electricity"
+                class="char-item"
+              >
                 <span class="char-label">Электричество</span>
-                <span class="char-value">{{ property.electricity ? 'Есть' : 'Нет' }}</span>
+                <span class="char-value">Подключено</span>
               </div>
-              <div v-if="property.hasBuildings !== undefined" class="char-item">
+              <div
+                v-if="
+                  isFieldRelevant('hasBuildings') &&
+                  property.hasBuildings &&
+                  property.hasBuildings !== 'none'
+                "
+                class="char-item"
+              >
                 <span class="char-label">Строения на участке</span>
                 <span class="char-value">{{
-                  property.hasBuildings ? 'Есть' : 'Нет'
+                  getPropertyLabel("hasBuildings", property.hasBuildings)
                 }}</span>
               </div>
+              <div
+                v-if="isFieldRelevant('landType') && property.landType"
+                class="char-item"
+              >
+                <span class="char-label">Тип участка</span>
+                <span class="char-value">{{
+                  getPropertyLabel("landType", property.landType)
+                }}</span>
+              </div>
+              <div
+                v-if="
+                  isFieldRelevant('roadType') &&
+                  property.roadType &&
+                  property.roadType.length
+                "
+                class="char-item"
+              >
+                <span class="char-label">Подъезд</span>
+                <span class="char-value">{{
+                  getPropertyLabel("roadType", property.roadType)
+                }}</span>
+              </div>
+              <div
+                v-if="
+                  isFieldRelevant('commercialTypes') &&
+                  property.commercialTypes &&
+                  property.commercialTypes.length
+                "
+                class="char-item"
+              >
+                <span class="char-label">Специализация</span>
+                <span class="char-value">{{
+                  getPropertyLabel("commercialTypes", property.commercialTypes)
+                }}</span>
+              </div>
+              <div
+                v-if="isFieldRelevant('floor') && property.floor"
+                class="char-item"
+              >
+                <span class="char-label">Этаж</span>
+                <span class="char-value">{{
+                  getPropertyLabel("floor", String(property.floor))
+                }}</span>
+              </div>
+              <div
+                v-if="isFieldRelevant('totalFloors') && property.totalFloors"
+                class="char-item"
+              >
+                <span class="char-label">Этажность</span>
+                <span class="char-value">{{
+                  getPropertyLabel("totalFloors", String(property.totalFloors))
+                }}</span>
+              </div>
+              <!-- <div v-if="property.source" class="char-item">
+                <span class="char-label">Источник</span>
+                <span class="char-value">{{ getPropertyLabel("source", property.source) }}</span>
+              </div>
+              <div v-if="property.verified" class="char-item">
+                <span class="char-label">Проверено</span>
+                <span class="char-value">Да</span>
+              </div> -->
             </div>
           </section>
 
           <section
             class="property-section"
-            v-if="property.amenities && property.amenities.length"
+            v-if="
+              isFieldRelevant('amenities') &&
+              property.amenities &&
+              property.amenities.length
+            "
           >
             <h2 class="section-title">Удобства</h2>
             <div class="amenities-list">
@@ -469,6 +774,18 @@ defineExpose({});
     }
   }
 
+  &__price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    white-space: nowrap;
+
+    @media (max-width: 768px) {
+      align-items: flex-start;
+    }
+  }
+
   &__address {
     font-size: 1.25rem;
     color: #64748b;
@@ -498,15 +815,27 @@ defineExpose({});
   }
 }
 
-.property-price {
+.price-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   font-size: 2.25rem;
   font-weight: 800;
   color: #2563eb;
-  white-space: nowrap;
 
   @media (max-width: 768px) {
     font-size: 1.75rem;
   }
+}
+
+.price-badge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 999px;
+  text-transform: uppercase;
 }
 
 .property-gallery {
@@ -723,6 +1052,19 @@ defineExpose({});
 .spec-value {
   font-weight: 700;
   color: #0f172a;
+}
+
+.spec-value-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.spec-subvalue {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .property-section {

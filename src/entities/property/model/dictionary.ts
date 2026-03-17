@@ -20,6 +20,17 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
     autonomous_house: "Автономное (дом)",
     none: "Нет",
   },
+  heatingSources: {
+    gas: "Газ",
+    heat_pump: "Тепловой насос",
+    ac: "Кондиционер",
+    solar: "Солнечные батареи",
+    fireplace: "Печь / камин",
+    electric: "Электрокотел",
+    solid_fuel: "Твердое топливо",
+    liquid_fuel: "Жидкое топливо",
+    heat_well: "Геотермальное",
+  },
   buildingType: {
     brick: "Кирпичный",
     panel: "Панельный",
@@ -55,31 +66,31 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
   },
   apartmentSeries: {
     individual: "Индивидуальная",
-    "143": "143 серия",
-    "135": "135 серия",
-    "102": "102 серия",
+    "143": "143",
+    "135": "135",
+    "102": "102",
     hrushchevka: "Хрущевка",
     stalinka: "Сталинка",
     brezhnevka: "Брежневка",
     varnitskaya: "Варницкая",
     rubashka: "Рубашка",
-    ms: "МС (Молдавская серия)",
+    ms: "МС",
     ceshka: "Чешка",
     cheshka: "Чешка",
   },
   condition: {
-    euro: "Евроремонт",
-    cosmetic: "Косметический",
-    needs_repair: "Требует ремонта",
-    white_box: "Белый вариант",
-    black_box: "Серый вариант",
-    major_repair: "Капитальный ремонт",
-    cosmetic_repair: "Косметический ремонт",
-    no_repair: "Не требует ремонта",
-    after_cosmetic: "После косм. ремонта",
-    after_repair: "После ремонта",
-    unfinished: "Недостроен",
-    excellent: "В отличном состоянии",
+    euro: "евроремонт",
+    cosmetic: "косметический",
+    needs_repair: "требует ремонта",
+    white_box: "белый вариант",
+    black_box: "серый вариант",
+    major_repair: "требует капитального ремонта",
+    cosmetic_repair: "требует косметического ремонта",
+    no_repair: "не требует ремонта",
+    after_cosmetic: "после косметического ремонта",
+    after_repair: "после ремонта",
+    unfinished: "недостроен",
+    excellent: "в отличном состоянии",
   },
   balcony: {
     balcony: "Балкон",
@@ -89,6 +100,7 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
     "1": "1 балкон",
     "2": "2 балкона",
     "3": "3 балкона",
+    "4": "4 балкона",
     "4+": "4 и более",
   },
   bathroom: {
@@ -109,7 +121,7 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
     none: "Нет",
   },
   water: {
-    central: "Центральный",
+    central: "Водопровод",
     well: "Скважина / колодец",
     none: "Нет",
   },
@@ -134,6 +146,12 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
     started: "Начато строительство",
     capital: "Капитальное строение",
   },
+  hasBuildings: {
+    none: "Нет строений",
+    temporary: "Временное строение",
+    started: "Начато строительство",
+    capital: "Капитальное строение",
+  },
   constructionType: {
     standard: "Типовая застройка",
     historic: "Историческое здание",
@@ -153,7 +171,23 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
   },
   roomTypes: {
     separate: "Раздельные",
-    adjoining: "Смежные",
+    adjoining: "Есть смежные комнаты",
+  },
+  layout: {
+    separate: "Раздельная",
+    adjoining: "Смежная",
+    studio: "Студия",
+    penthouse: "Пентхаус",
+    loft: "Лофт",
+  },
+  positionInBuilding: {
+    middle: "В середине дома",
+    corner: "Угловая",
+  },
+  source: {
+    internet: "Интернет",
+    newspaper: "Газета",
+    other: "Другое",
   },
   amenities: {
     furniture: "Мебель",
@@ -192,18 +226,42 @@ export const propertyDictionary: Record<string, Record<string, string>> = {
     mansard: "Мансарда",
     sauna: "Сауна",
     pool: "Бассейн",
+    gas: "Газ",
+    water: "Вода",
+    sewerage: "Канализация",
+  },
+  totalFloors: {
+    "1": "1 этаж",
+    "2": "2 этажа",
+    "3": "3 этажа",
+    "3+": "3 этажа и более",
+    "4": "4 этажа",
+    "5": "5 этажей",
+    "9": "9 этажей",
+    "10": "10 этажей",
+  },
+  floor: {
+    "1": "1 этаж",
+    "2": "2 этаж",
+    "3": "3 этаж",
+    "4": "4 этаж",
+    "5": "5 этаж",
+  },
+  rentPeriod: {
+    sale: "Продажа",
+    rent: "Аренда",
+    monthly: "Аренда",
+    exchange: "Обмен",
   },
 };
 
 export const getPropertyLabel = (
   category: string,
-  value?: string | string[]
+  value?: string | string[],
 ): string => {
   if (!value) return "—";
   if (Array.isArray(value)) {
-    return value
-      .map((v) => propertyDictionary[category]?.[v] || v)
-      .join(", ");
+    return value.map((v) => propertyDictionary[category]?.[v] || v).join(", ");
   }
   return propertyDictionary[category]?.[value] || value;
 };

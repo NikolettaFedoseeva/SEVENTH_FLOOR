@@ -91,9 +91,9 @@ defineExpose({});
       class="form-grid pl-4 pr-4 pb-4"
       :class="effectiveType?.startsWith('commercial') ? 'commercial' : ''"
     >
-      <!-- ================= COMMERCIAL ================= -->
+      <!-- ================= COMMERCIAL / GARAGE ================= -->
       <CommercialCharacteristics
-        v-if="effectiveType?.startsWith('commercial')"
+        v-if="effectiveType?.startsWith('commercial') || effectiveType === 'garage'"
         :form="form"
         :errors="errors"
         :commercialTypeList="commercialTypeList"
@@ -116,6 +116,7 @@ defineExpose({});
         :houseConditionTypes="houseConditionTypes"
         :houseFloorsList="houseFloorsList"
         :roomsCountListHouse="roomsCountListHouse"
+        :landStructures="landStructures"
         :bathroomTypes="bathroomTypes"
       />
 
@@ -127,6 +128,7 @@ defineExpose({});
         :houseConditionTypes="houseConditionTypes"
         :houseFloorsList="houseFloorsList"
         :roomsCountListHouse="roomsCountListHouse"
+        :landStructures="landStructures"
         :bathroomTypes="bathroomTypes"
       />
 
