@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
 /dist
-/public/dev_admin_section_videocall-dts.tgz
 /.exposes-types
 /package-lock.json
 
