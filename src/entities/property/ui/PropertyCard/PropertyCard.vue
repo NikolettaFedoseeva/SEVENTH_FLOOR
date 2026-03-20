@@ -269,9 +269,6 @@ defineExpose({});
     font-weight: 700;
     color: #0f172a;
     line-height: 1.3;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word;
   }
 
   .new-build-badge {

@@ -9,25 +9,33 @@ const store = usePropertiesStore();
 const { properties: allProperties } = storeToRefs(store);
 const scrollContainer = ref<HTMLElement | null>(null);
 
-let intervalId: number | null = null;
 let animationFrameId: number | null = null;
+const isPaused = ref(false);
+let pauseTimer: number | null = null;
+
+// Drag state
+const isDragging = ref(false);
+const startX = ref(0);
+const scrollLeftStart = ref(0);
 // #endregion refs
 
 // #region computed
 // Duplicate properties to create infinite effect
 const properties = computed(() => {
   const props = allProperties.value.slice(0, 10);
+  if (props.length === 0) return [];
   return [...props, ...props, ...props]; // Triple the items for safety
 });
 // #endregion computed
 
 // #region Функции
 const startAutoScroll = (): void => {
+  if (isPaused.value || isDragging.value) return;
   stopAutoScroll();
-  // Continuous smooth scrolling
+
   const scroll = (): void => {
-    if (scrollContainer.value) {
-      scrollContainer.value.scrollLeft += 1;
+    if (scrollContainer.value && !isPaused.value && !isDragging.value) {
+      scrollContainer.value.scrollLeft += 0.5; // Slower, smoother scroll
       checkScroll();
     }
     animationFrameId = requestAnimationFrame(scroll);
@@ -42,12 +50,19 @@ const stopAutoScroll = (): void => {
   }
 };
 
+const pauseAutoScroll = (duration = 5000): void => {
+  isPaused.value = true;
+  if (pauseTimer) clearTimeout(pauseTimer);
+
+  pauseTimer = window.setTimeout(() => {
+    isPaused.value = false;
+    startAutoScroll();
+  }, duration);
+};
+
 const checkScroll = (): void => {
   if (!scrollContainer.value) return;
   const container = scrollContainer.value;
-
-  // If we've scrolled past the first set of items (1/3 of total width), reset to 0
-  // Actually, reset to the start of the second set to avoid jump
   const oneSetWidth = container.scrollWidth / 3;
 
   if (container.scrollLeft >= oneSetWidth * 2) {
@@ -56,11 +71,37 @@ const checkScroll = (): void => {
     container.scrollLeft = oneSetWidth;
   }
 };
+
+// Mouse Drag Handlers
+const onMouseDown = (e: MouseEvent): void => {
+  if (!scrollContainer.value) return;
+  isDragging.value = true;
+  startX.value = e.pageX - scrollContainer.value.offsetLeft;
+  scrollLeftStart.value = scrollContainer.value.scrollLeft;
+  pauseAutoScroll(7000); // Longer pause on drag
+};
+
+const onMouseMove = (e: MouseEvent): void => {
+  if (!isDragging.value || !scrollContainer.value) return;
+  e.preventDefault();
+  const x = e.pageX - scrollContainer.value.offsetLeft;
+  const walk = (x - startX.value) * 2; // Scroll speed multiplier
+  scrollContainer.value.scrollLeft = scrollLeftStart.value - walk;
+  checkScroll();
+};
+
+const onMouseUp = (): void => {
+  isDragging.value = false;
+};
+
+// Touch Handlers
+const onTouchStart = (): void => {
+  pauseAutoScroll(7000);
+};
 // #endregion Функции
 
 // #region Хуки жизненного цикла
 onMounted(() => {
-  // Set initial scroll position to the middle set
   if (scrollContainer.value) {
     setTimeout(() => {
       if (scrollContainer.value) {
@@ -68,12 +109,13 @@ onMounted(() => {
         scrollContainer.value.scrollLeft = oneSetWidth;
         startAutoScroll();
       }
-    }, 500); // Wait for render
+    }, 500);
   }
 });
 
 onUnmounted(() => {
   stopAutoScroll();
+  if (pauseTimer) clearTimeout(pauseTimer);
 });
 // #endregion Хуки жизненного цикла
 
@@ -90,12 +132,17 @@ defineExpose({});
       <div
         class="carousel-track"
         ref="scrollContainer"
-        @mouseenter="stopAutoScroll"
-        @mouseleave="startAutoScroll"
+        :class="{ 'is-dragging': isDragging }"
+        @mousedown="onMouseDown"
+        @mousemove="onMouseMove"
+        @mouseup="onMouseUp"
+        @mouseleave="onMouseUp"
+        @touchstart="onTouchStart"
+        @mouseenter="pauseAutoScroll(3000)"
       >
         <div
-          v-for="item in properties"
-          :key="item.id"
+          v-for="(item, index) in properties"
+          :key="`${item.id}-${index}`"
           class="carousel-card"
           :style="{ backgroundImage: `url(${item.imageUrl})` }"
         >
@@ -152,9 +199,16 @@ defineExpose({});
   overflow-x: auto;
   scroll-behavior: smooth;
   padding-bottom: 2rem;
+  cursor: grab;
+  user-select: none;
   /* Hide scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
+
+  &.is-dragging {
+    cursor: grabbing;
+    scroll-behavior: auto; /* Disable smooth scroll during drag for better feel */
+  }
 }
 
 .carousel-track::-webkit-scrollbar {

@@ -434,12 +434,12 @@ defineExpose({});
   }
 
   .hero-section__title {
-    font-size: 2rem; /* Fix font size */
+    font-size: 1.8rem; /* Fix font size */
     margin-bottom: 1.5rem;
   }
 
   .hero-section__subtitle-phone a {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .hero-section__divider {
